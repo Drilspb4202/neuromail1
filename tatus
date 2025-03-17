@@ -1,0 +1,5 @@
+[33mcommit 0e3a8cd3e44d2a072ee0cdc5e60881f0fe051d4a[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m
+Author: NeuroMail User <example@example.com>
+Date:   Mon Mar 17 02:19:06 2025 -0900
+
+    Исправлен endpoint для проверки API и CORS
