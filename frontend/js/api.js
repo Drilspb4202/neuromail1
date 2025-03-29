@@ -4,7 +4,7 @@
 class MailSlurpApi {
     constructor() {
         // Защищенный публичный API ключ - никогда не изменяется
-        this.publicApiKey = 'fac5b6d2020a14edc74b54e9f1b09513df1c2ca3fc1901ec9e5933df11052d5a';
+        this.publicApiKey = '042b76d65e4661288db7647cfae566a7b7b02f2b5cf55528f5a2106ebd32de09';
         
         // API ключ пользователя - может быть изменен
         this.personalApiKey = localStorage.getItem('mailslurp_personal_api_key') || '';
@@ -496,7 +496,7 @@ class MailSlurpApi {
     }
 
     /**
-     * Получить письмо
+     * Получить письмо по ID
      * @param {string} inboxId - ID почтового ящика (опционально) 
      * @param {string} emailId - ID письма 
      * @returns {Promise<Object>} - Объект с данными письма
@@ -537,9 +537,52 @@ class MailSlurpApi {
                 }
             }
             
+            // Обрабатываем вложения, если они есть
+            if (email.attachments && email.attachments.length > 0) {
+                console.log('Письмо содержит вложения:', email.attachments);
+                
+                // Добавляем дополнительную информацию для отображения и скачивания
+                email.attachments = email.attachments.map(attachment => {
+                    return {
+                        ...attachment,
+                        // Добавляем URL для скачивания вложения
+                        downloadUrl: `${this.baseUrl}/attachments/${attachment.id}?apiKey=${this.apiKey}`,
+                    };
+                });
+            }
+            
             return email;
         } catch (error) {
             console.error('Ошибка при получении письма:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Скачать вложение по ID
+     * @param {string} attachmentId - ID вложения
+     * @returns {Promise<Blob>} - Данные вложения в виде Blob
+     */
+    async downloadAttachment(attachmentId) {
+        try {
+            console.log('Скачивание вложения с ID:', attachmentId);
+            
+            const response = await fetch(`${this.baseUrl}/attachments/${attachmentId}`, {
+                method: 'GET',
+                headers: {
+                    'x-api-key': this.apiKey
+                }
+            });
+            
+            if (!response.ok) {
+                console.error(`Ошибка API при скачивании вложения: ${response.status} ${response.statusText}`);
+                throw new Error(`Ошибка при скачивании вложения: ${response.status} ${response.statusText}`);
+            }
+            
+            // Возвращаем данные как Blob для скачивания
+            return await response.blob();
+        } catch (error) {
+            console.error('Ошибка при скачивании вложения:', error);
             throw error;
         }
     }
