@@ -1,0 +1,17 @@
+/* Усиленные стили для кнопки удаления */
+#confirm-delete,
+.modal-footer .btn-danger,
+#delete-confirm-modal .btn-danger {
+    background-color: #dc3545 !important;
+    color: white !important;
+    border-color: #dc3545 !important;
+    box-shadow: 0 2px 5px rgba(220, 53, 69, 0.3) !important;
+}
+
+#confirm-delete:hover,
+.modal-footer .btn-danger:hover,
+#delete-confirm-modal .btn-danger:hover {
+    background-color: #bd2130 !important;
+    border-color: #bd2130 !important;
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.4) !important;
+} 
