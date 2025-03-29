@@ -34,4 +34,7 @@ logs
 go_installer.msi
 *.exe
 tatus
-ter 
+ter
+
+# Служебные файлы
+.specstory/ 
