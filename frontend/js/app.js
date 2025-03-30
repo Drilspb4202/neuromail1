@@ -71,50 +71,38 @@ class MailSlurpApp {
             
             // Инициализируем генератор данных
             this.initDataGenerator();
-        // Привязываем обработчики событий UI к методам приложения
-        this.bindUIEvents();
-        
-        console.log('Инициализация приложения...');
-        
-        // Показываем предупреждение о времени жизни ящика при публичном API
-        const isPublicApi = !this.api.usePersonalApi;
-        if (isPublicApi) {
-            // Показываем уведомление сразу при запуске для информирования пользователя
+            
+            // Запускаем интервал проверки новых писем
+            this.startEmailCheckInterval();
+            
+            // Инициализируем настройки таймера удаления
+            this.initDeleteTimerSettings();
+            
+            // Инициализируем настройки API ключа и режима
+            this.initApiKeySettings();
+            
+            // Скрываем прелоадер после полной инициализации
             setTimeout(() => {
-                this.showInboxLifetimeInfo(true);
-            }, 1000);
+                const preloader = document.querySelector('.preloader');
+                if (preloader) {
+                    preloader.classList.add('hidden');
+                }
+            }, 800);
+            
+            console.log('Инициализация приложения завершена');
+            return Promise.resolve();
+        } catch (error) {
+            console.error('Ошибка при инициализации приложения:', error);
+            
+            // Скрываем прелоадер даже при ошибке
+            const preloader = document.querySelector('.preloader');
+            if (preloader) {
+                preloader.classList.add('hidden');
+            }
+            
+            this.ui.showToast(`Ошибка при инициализации: ${error.message}`, 'error', 10000);
+            return Promise.reject(error);
         }
-        
-        // Загружаем список почтовых ящиков (и автоматически восстанавливаем текущий ящик, если он есть)
-        await this.loadInboxes();
-        
-        // Проверяем статус аккаунта
-        await this.checkAccountStatus();
-        
-        // Добавляем обработчик для кнопки обновления
-        document.getElementById('refresh-btn').addEventListener('click', () => {
-            this.loadInboxes();
-            this.checkAccountStatus();
-        });
-        
-        document.getElementById('confirm-send-email').addEventListener('click', () => {
-            this.sendEmail();
-        });
-        
-        // Инициализируем состояние Markdown редактора
-        this.initMarkdownEditor();
-        
-        // Инициализируем генератор данных
-        this.initDataGenerator();
-        
-        // Запускаем интервал проверки новых писем
-        this.startEmailCheckInterval();
-        
-        // Инициализируем настройки таймера удаления
-        this.initDeleteTimerSettings();
-        
-        // Инициализируем настройки API ключа и режима
-        this.initApiKeySettings();
     }
     
     /**
