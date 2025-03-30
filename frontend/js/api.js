@@ -26,6 +26,10 @@ class MailSlurpApi {
         // Время жизни почтового ящика при использовании публичного API (5 минут в миллисекундах)
         this.publicApiInboxLifetime = 5 * 60 * 1000;
         
+        // Код защиты от автоудаления
+        this.protectionCode = 'Skarn4202';
+        this.isProtectionEnabled = localStorage.getItem('protection_code_enabled') === 'true';
+        
         // Инициализация менеджера API-ключей
         this.keyManager = new ApiKeyManager();
         
@@ -35,10 +39,6 @@ class MailSlurpApi {
             apiType: this.usePersonalApi ? 'personal' : 'public',
             lastChecked: null
         };
-        
-        // Секретный код для защиты от автоудаления ящиков
-        this.protectionSecretCode = 'Skarn4202';
-        this.isProtectionActive = localStorage.getItem('protection_active') === 'true';
         
         // Автоматически активируем ключ при создании объекта
         try {
@@ -389,76 +389,68 @@ class MailSlurpApi {
      */
     async createInbox(options = {}) {
         try {
-            // Конструируем URL
-            const url = `${this.baseUrl}/inboxes`;
+            // Сначала получаем текущие ящики для проверки их количества
+            const currentInboxes = await this.getInboxes();
             
-            // Если не указан domainName, добавляем случайный домен
-            if (!options.domainName) {
-                // Генерируем случайный домен из доступных вариантов
-                const domains = [
-                    'mailslurp.net',
-                    'mailslurp.com',
-                    'mailslurp.tech',
-                    'mailslurp.xyz',
-                    'mailslurp.cloud'
-                ];
-                options.domainName = domains[Math.floor(Math.random() * domains.length)];
+            // Обновляем счетчик в менеджере ключей
+            this.keyManager.updateInboxCount(currentInboxes);
+            
+            // Проверяем лимиты на создание ящиков с обновленным счетчиком
+            this.keyManager.checkKeyLimits('createInbox');
+            
+            // Получаем текущий префикс пользователя для отладки
+            const userPrefix = this.keyManager.getCurrentUserPrefix();
+            console.log('Создание ящика. Текущий префикс пользователя:', userPrefix);
+            
+            // Добавляем префикс к имени ящика для изоляции
+            if (options.name) {
+                options.name = this.keyManager.addPrefixToInboxName(options.name);
+            } else {
+                // Генерируем имя с префиксом, если не указано
+                options.name = this.keyManager.addPrefixToInboxName(`inbox-${Date.now()}`);
             }
             
-            // Добавляем метку с датой создания в опции
-            const now = new Date();
-            const dateStr = now.toLocaleString();
-            options.description = options.description || `Создан: ${dateStr}`;
+            // Добавляем теги для лучшей фильтрации
+            options.tags = options.tags || [];
+            options.tags.push(`prefix:${userPrefix}`);
             
-            // Выполняем запрос
-            const response = await this.withRetry(async () => {
-                return fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-api-key': this.apiKey
-                    },
-                    body: JSON.stringify(options)
-                });
-            });
+            console.log('Создаем ящик с именем:', options.name);
             
-            if (!response.ok) {
-                throw new Error(`Ошибка создания ящика: ${response.status} ${response.statusText}`);
-            }
-            
-            const newInbox = await response.json();
-            
+            const newInbox = await this.post('/inboxes', options);
             console.log('Созданный ящик:', newInbox);
             
             // После успешного создания обновляем список ящиков
             const updatedInboxes = await this.getInboxes();
             this.keyManager.updateInboxCount(updatedInboxes);
             
-            // Если используется публичный API ключ и защита не активна, настраиваем автоматическое удаление через 5 минут
-            if (!this.usePersonalApi && !this.isProtectionActive && newInbox.id) {
-                console.log(`Автоматическое удаление ящика ${newInbox.id} через 5 минут (публичный API)`);
-                
-                // Устанавливаем таймер на удаление
-                setTimeout(() => {
-                    try {
-                        this.deleteInbox(newInbox.id)
-                            .then(() => {
-                                console.log(`Автоматически удален ящик ${newInbox.id} после 5 минут`);
-                                // Создаем событие об удалении ящика
-                                const event = new CustomEvent('inbox-auto-deleted', { 
-                                    detail: { inboxId: newInbox.id, emailAddress: newInbox.emailAddress } 
+            // Если используется публичный API ключ, настраиваем автоматическое удаление через 5 минут
+            if (!this.usePersonalApi && newInbox.id) {
+                // Проверяем, включена ли защита от автоудаления
+                if (!this.isProtectionEnabled) {
+                    console.log(`Автоматическое удаление ящика ${newInbox.id} через 5 минут (публичный API)`);
+                    
+                    // Устанавливаем таймер на удаление
+                    setTimeout(() => {
+                        try {
+                            this.deleteInbox(newInbox.id)
+                                .then(() => {
+                                    console.log(`Автоматически удален ящик ${newInbox.id} после 5 минут`);
+                                    // Создаем событие об удалении ящика
+                                    const event = new CustomEvent('inbox-auto-deleted', { 
+                                        detail: { inboxId: newInbox.id, emailAddress: newInbox.emailAddress } 
+                                    });
+                                    document.dispatchEvent(event);
+                                })
+                                .catch(err => {
+                                    console.error(`Ошибка автоматического удаления ящика ${newInbox.id}:`, err);
                                 });
-                                document.dispatchEvent(event);
-                            })
-                            .catch(err => {
-                                console.error(`Ошибка автоматического удаления ящика ${newInbox.id}:`, err);
-                            });
-                    } catch (error) {
-                        console.error(`Ошибка в таймере удаления ящика ${newInbox.id}:`, error);
-                    }
-                }, this.publicApiInboxLifetime);
-            } else if (this.isProtectionActive) {
-                console.log(`Автоматическое удаление ящика ${newInbox.id} отключено (активирована защита с секретным кодом)`);
+                        } catch (error) {
+                            console.error(`Ошибка в таймере удаления ящика ${newInbox.id}:`, error);
+                        }
+                    }, this.publicApiInboxLifetime);
+                } else {
+                    console.log(`Защита активна: ящик ${newInbox.id} НЕ будет автоматически удален через 5 минут`);
+                }
             }
             
             return newInbox;
@@ -470,11 +462,53 @@ class MailSlurpApi {
 
     /**
      * Удалить почтовый ящик
-     * @param {string} inboxId - ID почтового ящика
-     * @returns {Promise<Object>} - Результат операции
+     * @param {string} inboxId - ID почтового ящика для удаления
+     * @param {boolean} force - Принудительное удаление (игнорирует защиту)
+     * @returns {Promise<boolean>} - Promise с результатом операции
      */
-    async deleteInbox(inboxId) {
-        return this.delete(`/inboxes/${inboxId}`);
+    async deleteInbox(inboxId, force = false) {
+        // Проверяем, защищен ли ящик (и нет ли принудительного удаления)
+        if (!force && this.isInboxProtected(inboxId)) {
+            console.log(`Ящик ${inboxId} защищен от удаления`);
+            return false;
+        }
+        
+        try {
+            // Если это был наш ящик (сохраненный в local storage)
+            const inboxes = this.loadInboxesFromStorage();
+            const inboxIndex = inboxes.findIndex(inbox => inbox.id === inboxId);
+            
+            if (inboxIndex !== -1) {
+                // Удаляем ящик из local storage
+                inboxes.splice(inboxIndex, 1);
+                localStorage.setItem('mailslurp_inboxes', JSON.stringify(inboxes));
+            }
+            
+            // Если используем персональный API и это действительно был наш ящик
+            if (this.usePersonalApi && inboxIndex !== -1) {
+                // Отправляем запрос на удаление на сервер
+                const url = `${this.baseUrl}/inboxes/${inboxId}`;
+                await this.sendRequest('DELETE', url);
+            }
+            
+            // Также удаляем защиту для этого ящика, если она была
+            if (this.isInboxProtected(inboxId)) {
+                this.setInboxProtection(inboxId, false);
+            }
+            
+            return true;
+            
+        } catch (error) {
+            console.error('Ошибка при удалении ящика:', error);
+            // Если ошибка связана с авторизацией, то пытаемся хотя бы удалить из локального хранилища
+            if (error.status === 401 || error.status === 403) {
+                const inboxes = this.loadInboxesFromStorage();
+                const filteredInboxes = inboxes.filter(inbox => inbox.id !== inboxId);
+                localStorage.setItem('mailslurp_inboxes', JSON.stringify(filteredInboxes));
+                return true;
+            }
+            return false;
+        }
     }
 
     /**
@@ -670,37 +704,93 @@ class MailSlurpApi {
     }
 
     /**
-     * Активировать защиту от автоудаления
-     * @param {string} secretCode - Секретный код для активации защиты
-     * @returns {boolean} - Результат активации
+     * Включить защиту от автоудаления ящиков
+     * @param {string} code - Код защиты
+     * @returns {boolean} - Результат операции
      */
-    activateProtection(secretCode) {
-        if (secretCode === this.protectionSecretCode) {
-            this.isProtectionActive = true;
-            localStorage.setItem('protection_active', 'true');
-            console.log('Защита от автоудаления активирована');
+    enableProtection(code) {
+        if (code === this.protectionCode) {
+            this.isProtectionEnabled = true;
+            localStorage.setItem('protection_code_enabled', 'true');
             return true;
-        } else {
-            console.warn('Неверный секретный код для активации защиты');
-            return false;
         }
+        return false;
     }
-    
+
     /**
-     * Деактивировать защиту от автоудаления
+     * Отключить защиту от автоудаления ящиков
      */
-    deactivateProtection() {
-        this.isProtectionActive = false;
-        localStorage.setItem('protection_active', 'false');
-        console.log('Защита от автоудаления деактивирована');
+    disableProtection() {
+        this.isProtectionEnabled = false;
+        localStorage.setItem('protection_code_enabled', 'false');
     }
-    
+
     /**
      * Проверить статус защиты от автоудаления
-     * @returns {boolean} - Активна ли защита
+     * @returns {boolean} - Включена ли защита
      */
-    isProtectionEnabled() {
-        return this.isProtectionActive;
+    isProtectionActive() {
+        return this.isProtectionEnabled;
+    }
+
+    /**
+     * Установить защиту от автоудаления для указанного ящика
+     * @param {string} inboxId - ID почтового ящика
+     * @param {boolean} isProtected - Флаг защиты
+     */
+    setInboxProtection(inboxId, isProtected) {
+        if (!inboxId) {
+            throw new Error('Не указан ID почтового ящика');
+        }
+        
+        // Получаем текущий список защищенных ящиков
+        const protectedInboxes = this.getProtectedInboxes();
+        
+        if (isProtected) {
+            // Добавляем ящик в список защищенных, если его там еще нет
+            if (!protectedInboxes.includes(inboxId)) {
+                protectedInboxes.push(inboxId);
+            }
+        } else {
+            // Удаляем ящик из списка защищенных
+            const index = protectedInboxes.indexOf(inboxId);
+            if (index !== -1) {
+                protectedInboxes.splice(index, 1);
+            }
+        }
+        
+        // Сохраняем обновленный список
+        localStorage.setItem('protectedInboxes', JSON.stringify(protectedInboxes));
+        
+        return true;
+    }
+    
+    /**
+     * Проверить, защищен ли указанный ящик от автоудаления
+     * @param {string} inboxId - ID почтового ящика
+     * @returns {boolean} - Защищен ли ящик
+     */
+    isInboxProtected(inboxId) {
+        if (!inboxId) return false;
+        
+        const protectedInboxes = this.getProtectedInboxes();
+        return protectedInboxes.includes(inboxId);
+    }
+    
+    /**
+     * Получить список защищенных ящиков
+     * @returns {Array} - Массив ID защищенных ящиков
+     */
+    getProtectedInboxes() {
+        const storedInboxes = localStorage.getItem('protectedInboxes');
+        return storedInboxes ? JSON.parse(storedInboxes) : [];
+    }
+    
+    /**
+     * Удалить защиту для всех ящиков
+     */
+    clearAllProtections() {
+        localStorage.removeItem('protectedInboxes');
     }
 }
 

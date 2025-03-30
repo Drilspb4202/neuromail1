@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/button-fix.css">
-    <link rel="stylesheet" href="css/modern.css">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     
@@ -32,7 +31,7 @@
         clearBrowserCache();
     </script>
 </head>
-<body class="modern-ui">
+<body>
     <div class="app-container">
         <header class="app-header">
             <div class="header-actions left-actions">
@@ -48,10 +47,6 @@
                 <button id="generate-data-btn" class="btn btn-primary" title="Сгенерировать данные">
                     <i class="fas fa-user-plus"></i> Генератор данных
                 </button>
-                <div class="theme-toggle" id="theme-toggle" title="Переключить тему">
-                    <i class="fas fa-sun"></i>
-                    <i class="fas fa-moon"></i>
-                </div>
                 <div class="user-profile">
                     <i class="fas fa-user-circle"></i>
                 </div>
@@ -317,21 +312,6 @@
                             </div>
                         </div>
                         
-                        <!-- Секретный код для защиты писем от автоудаления -->
-                        <div class="secret-code-container">
-                            <p><i class="fas fa-info-circle"></i> Введите секретный код для защиты ваших почтовых ящиков от автоматического удаления при использовании публичного API.</p>
-                            <div class="secret-code-input">
-                                <input type="password" id="secret-protect-code" class="text-input" placeholder="Введите секретный код...">
-                                <button id="toggle-secret-code-visibility" class="btn btn-icon" title="Показать/скрыть код">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button id="activate-secret-code" class="btn btn-primary"><i class="fas fa-shield-alt"></i> Активировать</button>
-                            </div>
-                            <div class="secret-code-status inactive" id="secret-code-status">
-                                <i class="fas fa-circle"></i> Защита от автоудаления не активирована
-                            </div>
-                        </div>
-                        
                         <div class="settings-field">
                             <button class="btn btn-primary" id="update-api-key-btn"><i class="fas fa-save"></i> Сохранить ключ</button>
                             <button class="btn" id="reset-to-public-api-btn"><i class="fas fa-undo"></i> Сбросить к публичному API</button>
@@ -381,6 +361,37 @@
                             </div>
                         </div>
                         <button class="btn btn-primary" id="save-auto-delete-btn"><i class="fas fa-save"></i> Сохранить</button>
+                    </div>
+
+                    <div class="settings-group protection-settings">
+                        <h3><i class="fas fa-shield-alt"></i> Защита от автоудаления</h3>
+                        <div class="settings-info">
+                            <p><i class="fas fa-info-circle"></i> При использовании публичного API, почтовые ящики автоматически удаляются через 5 минут.</p>
+                            <p>Введите специальный код защиты, чтобы отключить автоудаление ящиков.</p>
+                        </div>
+                        <div class="settings-field">
+                            <label for="protection-code"><i class="fas fa-key"></i> Код защиты:</label>
+                            <div class="protection-code-input-group">
+                                <input type="password" id="protection-code" class="text-input" placeholder="Введите код защиты...">
+                                <button class="btn btn-toggle-pwd" id="toggle-protection-code-visibility" title="Показать/скрыть код">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="protection-status">
+                            <div id="protection-inactive" class="status-indicator">
+                                <span class="status-dot inactive"></span>
+                                <span class="status-text">Защита от автоудаления не активна</span>
+                            </div>
+                            <div id="protection-active" class="status-indicator" style="display: none;">
+                                <span class="status-dot active"></span>
+                                <span class="status-text">Защита от автоудаления активна</span>
+                            </div>
+                        </div>
+                        <div class="settings-field">
+                            <button class="btn btn-primary" id="enable-protection-btn"><i class="fas fa-lock"></i> Активировать защиту</button>
+                            <button class="btn" id="disable-protection-btn"><i class="fas fa-unlock"></i> Отключить защиту</button>
+                        </div>
                     </div>
 
                     <div class="settings-group">
