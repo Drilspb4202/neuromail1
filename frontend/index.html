@@ -3,47 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    
-    <!-- Скрипт для принудительного сброса кэша стилей -->
-    <script>
-        // Форсируем перезагрузку стилей при каждом запуске
-        function reloadStyles() {
-            const now = new Date().getTime();
-            const styleSheets = document.querySelectorAll('link[rel="stylesheet"]');
-            
-            styleSheets.forEach(link => {
-                const href = link.href;
-                if (href.includes('css/')) {
-                    // Добавляем временную метку к пути стиля
-                    const newHref = href.includes('?') 
-                        ? href.split('?')[0] + '?t=' + now 
-                        : href + '?t=' + now;
-                    
-                    // Создаем новую ссылку на стиль
-                    const newLink = document.createElement('link');
-                    newLink.rel = 'stylesheet';
-                    newLink.href = newHref;
-                    
-                    // Заменяем старую ссылку новой
-                    document.head.replaceChild(newLink, link);
-                }
-            });
-        }
-        
-        // Вызываем функцию после загрузки DOM
-        document.addEventListener('DOMContentLoaded', reloadStyles);
-    </script>
-    
     <title>NeuroMail - Временные Email ящики</title>
     
     <!-- Стили -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="css/styles.css?v=1.2">
-    <link rel="stylesheet" href="css/button-fix.css?v=1.2">
-    <link rel="stylesheet" href="css/vercel-fix.css?v=1.1">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/button-fix.css">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     
@@ -67,6 +32,20 @@
     </script>
 </head>
 <body>
+    <!-- Прелоадер -->
+    <div class="preloader" id="preloader">
+        <div class="preloader-content">
+            <div class="preloader-spinner">
+                <div class="spinner-circle"></div>
+                <div class="spinner-circle-outer"></div>
+            </div>
+            <div class="preloader-text">
+                <div class="preloader-title">NeuroMail</div>
+                <div class="preloader-subtitle">Загрузка временного почтового сервиса...</div>
+            </div>
+        </div>
+    </div>
+
     <div class="app-container">
         <header class="app-header">
             <div class="header-actions left-actions">
@@ -398,37 +377,6 @@
                         <button class="btn btn-primary" id="save-auto-delete-btn"><i class="fas fa-save"></i> Сохранить</button>
                     </div>
 
-                    <div class="settings-group protection-settings">
-                        <h3><i class="fas fa-shield-alt"></i> Защита от автоудаления</h3>
-                        <div class="settings-info">
-                            <p><i class="fas fa-info-circle"></i> При использовании публичного API, почтовые ящики автоматически удаляются через 5 минут.</p>
-                            <p>Введите специальный код защиты, чтобы отключить автоудаление ящиков.</p>
-                        </div>
-                        <div class="settings-field">
-                            <label for="protection-code"><i class="fas fa-key"></i> Код защиты:</label>
-                            <div class="protection-code-input-group">
-                                <input type="password" id="protection-code" class="text-input" placeholder="Введите код защиты...">
-                                <button class="btn btn-toggle-pwd" id="toggle-protection-code-visibility" title="Показать/скрыть код">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="protection-status">
-                            <div id="protection-inactive" class="status-indicator">
-                                <span class="status-dot inactive"></span>
-                                <span class="status-text">Защита от автоудаления не активна</span>
-                            </div>
-                            <div id="protection-active" class="status-indicator" style="display: none;">
-                                <span class="status-dot active"></span>
-                                <span class="status-text">Защита от автоудаления активна</span>
-                            </div>
-                        </div>
-                        <div class="settings-field">
-                            <button class="btn btn-primary" id="enable-protection-btn"><i class="fas fa-lock"></i> Активировать защиту</button>
-                            <button class="btn" id="disable-protection-btn"><i class="fas fa-unlock"></i> Отключить защиту</button>
-                        </div>
-                    </div>
-
                     <div class="settings-group">
                         <h3><i class="fas fa-file-alt"></i> Журнал операций</h3>
                         <div class="settings-field checkbox-field">
@@ -444,6 +392,26 @@
                             <input type="text" id="log-file-path" class="text-input" value="./mailslurp.log">
                         </div>
                         <button class="btn btn-primary" id="save-logging-btn"><i class="fas fa-save"></i> Сохранить</button>
+                    </div>
+                    
+                    <!-- Новая секция для секретного кода -->
+                    <div class="settings-group secret-code-section">
+                        <h3><i class="fas fa-unlock-alt"></i> Расширенные возможности</h3>
+                        <div class="settings-field">
+                            <label for="secret-code"><i class="fas fa-key"></i> Секретный код:</label>
+                            <div class="secret-code-input-group">
+                                <input type="password" id="secret-code" class="text-input" placeholder="Введите секретный код для разблокировки...">
+                                <button class="btn btn-toggle-code" id="toggle-code-visibility" title="Показать/скрыть код">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="secret-code-status" id="secret-code-status">
+                                <span class="code-inactive"><i class="fas fa-times-circle"></i> Код не активирован</span>
+                                <span class="code-active" style="display: none;"><i class="fas fa-check-circle"></i> Премиум-функции активированы</span>
+                            </div>
+                            <p class="secret-code-desc">Введите специальный код для разблокировки расширенных функций, включая сохранение почтовых ящиков при использовании публичного API.</p>
+                        </div>
+                        <button class="btn btn-primary" id="activate-code-btn"><i class="fas fa-unlock"></i> Активировать код</button>
                     </div>
                 </div>
             </section>

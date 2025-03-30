@@ -32,8 +32,45 @@ class MailSlurpApp {
     
     /**
      * Инициализировать приложение
+     * @returns {Promise} - Promise, который разрешается после завершения инициализации
      */
     async init() {
+        try {
+            // Привязываем обработчики событий UI к методам приложения
+            this.bindUIEvents();
+            
+            console.log('Инициализация приложения...');
+            
+            // Показываем предупреждение о времени жизни ящика при публичном API
+            const isPublicApi = !this.api.usePersonalApi;
+            if (isPublicApi) {
+                // Показываем уведомление сразу при запуске для информирования пользователя
+                setTimeout(() => {
+                    this.showInboxLifetimeInfo(true);
+                }, 1000);
+            }
+            
+            // Загружаем список почтовых ящиков (и автоматически восстанавливаем текущий ящик, если он есть)
+            await this.loadInboxes();
+            
+            // Проверяем статус аккаунта
+            await this.checkAccountStatus();
+            
+            // Добавляем обработчик для кнопки обновления
+            document.getElementById('refresh-btn').addEventListener('click', () => {
+                this.loadInboxes();
+                this.checkAccountStatus();
+            });
+            
+            document.getElementById('confirm-send-email').addEventListener('click', () => {
+                this.sendEmail();
+            });
+            
+            // Инициализируем состояние Markdown редактора
+            this.initMarkdownEditor();
+            
+            // Инициализируем генератор данных
+            this.initDataGenerator();
         // Привязываем обработчики событий UI к методам приложения
         this.bindUIEvents();
         
@@ -78,66 +115,6 @@ class MailSlurpApp {
         
         // Инициализируем настройки API ключа и режима
         this.initApiKeySettings();
-        
-        // Инициализируем статус защиты от автоудаления
-        this.initProtectionStatus();
-        
-        // Добавляем обработчики для элементов защиты от автоудаления
-        this.initProtectionHandlers();
-    }
-    
-    /**
-     * Инициализировать обработчики для защиты от автоудаления
-     */
-    initProtectionHandlers() {
-        const enableBtn = document.getElementById('enable-protection-btn');
-        const disableBtn = document.getElementById('disable-protection-btn');
-        const toggleVisibilityBtn = document.getElementById('toggle-protection-code-visibility');
-        
-        if (enableBtn) {
-            enableBtn.addEventListener('click', () => this.enableProtection());
-        }
-        
-        if (disableBtn) {
-            disableBtn.addEventListener('click', () => this.disableProtection());
-        }
-        
-        if (toggleVisibilityBtn) {
-            toggleVisibilityBtn.addEventListener('click', () => this.toggleProtectionCodeVisibility());
-        }
-    }
-    
-    /**
-     * Инициализировать статус защиты от автоудаления
-     */
-    initProtectionStatus() {
-        const inboxId = this.getCurrentInboxId();
-        if (!inboxId) return;
-        
-        const isProtected = this.api.isInboxProtected(inboxId);
-        
-        // Обновляем индикатор статуса
-        const statusDot = document.querySelector('.status-dot');
-        const statusText = document.querySelector('.status-text');
-        
-        if (statusDot) {
-            if (isProtected) {
-                statusDot.classList.add('active');
-            } else {
-                statusDot.classList.remove('active');
-            }
-        }
-        
-        if (statusText) {
-            statusText.textContent = isProtected ? 'Защита активна' : 'Защита не активна';
-        }
-        
-        // Если защита активна, показываем уведомление
-        if (isProtected) {
-            setTimeout(() => {
-                this.ui.showToast('Этот почтовый ящик защищен от автоудаления!', 'success', 5000);
-            }, 1500);
-        }
     }
     
     /**
@@ -160,10 +137,20 @@ class MailSlurpApp {
         document.getElementById('api-mode-toggle').addEventListener('change', (e) => this.toggleApiMode(e.target.checked));
         document.getElementById('toggle-api-key-visibility').addEventListener('click', () => this.toggleApiKeyVisibility());
         
-        // События для управления защитой от автоудаления
-        document.getElementById('enable-protection-btn').addEventListener('click', () => this.enableProtection());
-        document.getElementById('disable-protection-btn').addEventListener('click', () => this.disableProtection());
-        document.getElementById('toggle-protection-code-visibility').addEventListener('click', () => this.toggleProtectionCodeVisibility());
+        // Секретный код
+        const activateCodeBtn = document.getElementById('activate-code-btn');
+        const toggleCodeBtn = document.getElementById('toggle-code-visibility');
+        
+        if (activateCodeBtn) {
+            activateCodeBtn.addEventListener('click', () => this.checkSecretCode());
+        }
+        
+        if (toggleCodeBtn) {
+            toggleCodeBtn.addEventListener('click', () => this.toggleSecretCodeVisibility());
+        }
+        
+        // Обновляем состояние секретного кода при инициализации
+        this.updateSecretCodeStatus();
         
         // Подписываемся на события изменения статуса API
         document.addEventListener('api-connection-status-changed', (event) => {
@@ -270,10 +257,13 @@ class MailSlurpApp {
      * @param {boolean} isPublicApi - Флаг использования публичного API
      */
     showInboxLifetimeInfo(isPublicApi = false) {
-        if (isPublicApi) {
+        if (isPublicApi && !this.api.secretCodeActivated) {
             // Показываем уведомление о времени жизни ящика при публичном API
             const lifetimeMinutes = this.api.publicApiInboxLifetime / 60000;
-            this.ui.showToast(`Внимание! При использовании публичного API почтовые ящики автоматически удаляются через ${lifetimeMinutes} мин. Для постоянных ящиков используйте персональный API ключ.`, 'warning', 8000);
+            this.ui.showToast(`Внимание! При использовании публичного API почтовые ящики автоматически удаляются через ${lifetimeMinutes} мин. Для постоянных ящиков используйте персональный API ключ или активируйте секретный код.`, 'warning', 8000);
+        } else if (isPublicApi && this.api.secretCodeActivated) {
+            // Если секретный код активирован, показываем подтверждение
+            this.ui.showToast(`Секретный код активирован. Ваши почтовые ящики не будут автоматически удаляться даже с публичным API.`, 'success', 5000);
         }
     }
     
@@ -348,22 +338,10 @@ class MailSlurpApp {
     /**
      * Удалить почтовый ящик
      * @param {string} inboxId - ID почтового ящика
-     * @param {boolean} force - Принудительное удаление (игнорировать защиту)
      */
-    async deleteInbox(inboxId, force = false) {
+    async deleteInbox(inboxId) {
         try {
-            // Проверяем, защищен ли ящик от удаления
-            if (!force && this.api.isInboxProtected(inboxId)) {
-                this.ui.showToast('Этот почтовый ящик защищен от удаления. Сначала отключите защиту.', 'warning', 5000);
-                return;
-            }
-            
-            const result = await this.api.deleteInbox(inboxId, force);
-            
-            if (!result) {
-                this.ui.showToast('Не удалось удалить почтовый ящик', 'error');
-                return;
-            }
+            await this.api.deleteInbox(inboxId);
             
             // Если это текущий ящик, сбрасываем ID и очищаем localStorage
             if (this.currentInboxId === inboxId) {
@@ -445,6 +423,8 @@ class MailSlurpApp {
                         </tr>
                     `;
                     this.ui.currentInboxTitle.textContent = '📧 Письма';
+                    
+                    this.ui.showToast('Почтовый ящик не найден. Возможно, он был автоматически удален или срок его жизни истек.', 'error');
                     
                     // Обновляем список ящиков
                     this.loadInboxes();
@@ -981,89 +961,6 @@ class MailSlurpApp {
         } catch (error) {
             console.error('Ошибка при сохранении настроек журналирования:', error);
             this.ui.showToast(`Ошибка: ${error.message}`, 'error');
-        }
-    }
-    
-    /**
-     * Включить защиту от автоудаления для текущего ящика
-     */
-    enableProtection() {
-        const protectionCodeInput = document.getElementById('protection-code-input');
-        const code = protectionCodeInput.value.trim();
-        
-        if (code !== 'Skarn4202') {
-            this.ui.showToast('Неверный код защиты!', 'error');
-            return;
-        }
-        
-        const inboxId = this.getCurrentInboxId();
-        if (!inboxId) {
-            this.ui.showToast('Сначала выберите или создайте почтовый ящик', 'error');
-            return;
-        }
-        
-        try {
-            // Установить защиту для текущего ящика
-            this.api.setInboxProtection(inboxId, true);
-            
-            // Обновить индикатор статуса
-            const statusDot = document.querySelector('.status-dot');
-            const statusText = document.querySelector('.status-text');
-            
-            if (statusDot) statusDot.classList.add('active');
-            if (statusText) statusText.textContent = 'Защита активна';
-            
-            this.ui.showToast('Защита от автоудаления включена!', 'success', 5000);
-            
-            // Очистить поле ввода кода
-            protectionCodeInput.value = '';
-        } catch (error) {
-            console.error('Ошибка при включении защиты:', error);
-            this.ui.showToast('Не удалось включить защиту. Попробуйте еще раз.', 'error');
-        }
-    }
-    
-    /**
-     * Отключить защиту от автоудаления для текущего ящика
-     */
-    disableProtection() {
-        const inboxId = this.getCurrentInboxId();
-        if (!inboxId) {
-            this.ui.showToast('Сначала выберите или создайте почтовый ящик', 'error');
-            return;
-        }
-        
-        try {
-            // Отключить защиту для текущего ящика
-            this.api.setInboxProtection(inboxId, false);
-            
-            // Обновить индикатор статуса
-            const statusDot = document.querySelector('.status-dot');
-            const statusText = document.querySelector('.status-text');
-            
-            if (statusDot) statusDot.classList.remove('active');
-            if (statusText) statusText.textContent = 'Защита не активна';
-            
-            this.ui.showToast('Защита от автоудаления отключена', 'warning');
-        } catch (error) {
-            console.error('Ошибка при отключении защиты:', error);
-            this.ui.showToast('Не удалось отключить защиту. Попробуйте еще раз.', 'error');
-        }
-    }
-    
-    /**
-     * Переключить видимость кода защиты
-     */
-    toggleProtectionCodeVisibility() {
-        const input = document.getElementById('protection-code-input');
-        const icon = document.querySelector('#toggle-protection-code-visibility i');
-        
-        if (input.type === 'password') {
-            input.type = 'text';
-            if (icon) icon.className = 'fas fa-eye-slash';
-        } else {
-            input.type = 'password';
-            if (icon) icon.className = 'fas fa-eye';
         }
     }
     
@@ -1750,13 +1647,6 @@ class MailSlurpApp {
      */
     async handleAutoDeletedInbox(data) {
         try {
-            // Проверяем, защищен ли этот ящик
-            if (this.api.isInboxProtected(data.inboxId)) {
-                console.log(`Ящик ${data.inboxId} защищен от удаления, игнорируем событие автоудаления`);
-                this.ui.showToast('Попытка автоудаления ящика предотвращена благодаря защите!', 'success', 5000);
-                return;
-            }
-            
             // Удаляем ящик из локального списка
             if (this.inboxes && Array.isArray(this.inboxes)) {
                 this.inboxes = this.inboxes.filter(inbox => inbox.id !== data.inboxId);
@@ -1801,11 +1691,91 @@ class MailSlurpApp {
     }
     
     /**
-     * Получить ID текущего почтового ящика
-     * @returns {string|null} - ID текущего ящика или null, если ящик не выбран
+     * Проверяет и активирует секретный код
      */
-    getCurrentInboxId() {
-        return this.currentInboxId;
+    checkSecretCode() {
+        const secretCodeInput = document.getElementById('secret-code');
+        const secretCodeSection = document.querySelector('.secret-code-section');
+        const code = secretCodeInput.value.trim();
+        
+        if (!code) {
+            this.ui.showToast('Пожалуйста, введите секретный код', 'error');
+            return;
+        }
+        
+        // Удаляем классы анимации, если они были
+        secretCodeSection.classList.remove('code-activation-success', 'code-activation-error');
+        
+        // Проверяем код
+        const isValid = this.api.checkSecretCode(code);
+        
+        if (isValid) {
+            // Добавляем класс для анимации успешной активации
+            secretCodeSection.classList.add('code-activation-success');
+            
+            // Обновляем статус
+            this.updateSecretCodeStatus();
+            
+            // Показываем уведомление об успехе
+            this.ui.showToast('Секретный код активирован! Ваши почтовые ящики не будут автоматически удаляться.', 'success', 6000);
+        } else {
+            // Добавляем класс для анимации ошибки
+            secretCodeSection.classList.add('code-activation-error');
+            
+            // Показываем уведомление об ошибке
+            this.ui.showToast('Неверный секретный код. Пожалуйста, проверьте введенный код и попробуйте снова.', 'error');
+        }
+    }
+    
+    /**
+     * Обновляет визуальный статус секретного кода
+     */
+    updateSecretCodeStatus() {
+        const codeInactive = document.querySelector('.code-inactive');
+        const codeActive = document.querySelector('.code-active');
+        const activateBtn = document.getElementById('activate-code-btn');
+        
+        if (this.api.secretCodeActivated) {
+            codeInactive.style.display = 'none';
+            codeActive.style.display = 'inline-block';
+            
+            // Меняем текст кнопки на "Деактивировать"
+            activateBtn.innerHTML = '<i class="fas fa-lock"></i> Деактивировать код';
+            activateBtn.onclick = () => this.deactivateSecretCode();
+        } else {
+            codeInactive.style.display = 'inline-block';
+            codeActive.style.display = 'none';
+            
+            // Меняем текст кнопки на "Активировать"
+            activateBtn.innerHTML = '<i class="fas fa-unlock"></i> Активировать код';
+            activateBtn.onclick = () => this.checkSecretCode();
+        }
+    }
+    
+    /**
+     * Деактивирует секретный код
+     */
+    deactivateSecretCode() {
+        this.api.deactivateSecretCode();
+        this.updateSecretCodeStatus();
+        this.ui.showToast('Секретный код деактивирован. Почтовые ящики будут автоматически удаляться через 5 минут при использовании публичного API.', 'warning', 6000);
+    }
+    
+    /**
+     * Переключает видимость секретного кода
+     */
+    toggleSecretCodeVisibility() {
+        const secretCodeInput = document.getElementById('secret-code');
+        const toggleBtn = document.getElementById('toggle-code-visibility');
+        const eyeIcon = toggleBtn.querySelector('i');
+        
+        if (secretCodeInput.type === 'password') {
+            secretCodeInput.type = 'text';
+            eyeIcon.className = 'fas fa-eye-slash';
+        } else {
+            secretCodeInput.type = 'password';
+            eyeIcon.className = 'fas fa-eye';
+        }
     }
 }
 
@@ -1829,6 +1799,27 @@ document.addEventListener('DOMContentLoaded', () => {
     mailslurpUI.setApp(app);
     
     // Инициализируем приложение
-    app.init();
-    console.log('✅ Приложение полностью инициализировано и готово к работе!');
+    app.init().then(() => {
+        console.log('✅ Приложение полностью инициализировано и готово к работе!');
+        
+        // Скрываем прелоадер после инициализации
+        setTimeout(() => {
+            const preloader = document.getElementById('preloader');
+            if (preloader) {
+                preloader.classList.add('hidden');
+                
+                // Полностью удаляем прелоадер после завершения анимации
+                setTimeout(() => {
+                    preloader.remove();
+                }, 500);
+            }
+        }, 800); // Небольшая задержка для эффекта
+    }).catch(error => {
+        console.error('❌ Ошибка при инициализации приложения:', error);
+        // Даже при ошибке скрываем прелоадер
+        const preloader = document.getElementById('preloader');
+        if (preloader) {
+            preloader.classList.add('hidden');
+        }
+    });
 }); 
