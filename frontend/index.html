@@ -7,13 +7,43 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
+    <!-- Скрипт для принудительного сброса кэша стилей -->
+    <script>
+        // Форсируем перезагрузку стилей при каждом запуске
+        function reloadStyles() {
+            const now = new Date().getTime();
+            const styleSheets = document.querySelectorAll('link[rel="stylesheet"]');
+            
+            styleSheets.forEach(link => {
+                const href = link.href;
+                if (href.includes('css/')) {
+                    // Добавляем временную метку к пути стиля
+                    const newHref = href.includes('?') 
+                        ? href.split('?')[0] + '?t=' + now 
+                        : href + '?t=' + now;
+                    
+                    // Создаем новую ссылку на стиль
+                    const newLink = document.createElement('link');
+                    newLink.rel = 'stylesheet';
+                    newLink.href = newHref;
+                    
+                    // Заменяем старую ссылку новой
+                    document.head.replaceChild(newLink, link);
+                }
+            });
+        }
+        
+        // Вызываем функцию после загрузки DOM
+        document.addEventListener('DOMContentLoaded', reloadStyles);
+    </script>
+    
     <title>NeuroMail - Временные Email ящики</title>
     
     <!-- Стили -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="css/styles.css?v=1.1">
-    <link rel="stylesheet" href="css/button-fix.css?v=1.1">
-    <link rel="stylesheet" href="css/vercel-fix.css?v=1.0">
+    <link rel="stylesheet" href="css/styles.css?v=1.2">
+    <link rel="stylesheet" href="css/button-fix.css?v=1.2">
+    <link rel="stylesheet" href="css/vercel-fix.css?v=1.1">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     
