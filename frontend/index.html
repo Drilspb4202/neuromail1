@@ -284,130 +284,130 @@
                 
                 <div class="settings-form">
                     <div class="settings-group">
-                        <h3><i class="fas fa-key"></i> API ключ</h3>
+                        <h3 data-i18n="settings_api"><i class="fas fa-key"></i> API ключ</h3>
                         
                         <!-- Улучшенный блок для выбора типа API и отображения статуса -->
                         <div class="api-mode-selector">
-                            <div class="api-mode-label"><i class="fas fa-exchange-alt"></i> Режим API</div>
+                            <div class="api-mode-label" data-i18n="settings_api_mode_label"><i class="fas fa-exchange-alt"></i> Режим API</div>
                             <div class="api-mode-toggle">
-                                <span class="api-mode-option" id="public-api-option"><i class="fas fa-globe"></i> Публичный</span>
+                                <span class="api-mode-option" id="public-api-option" data-i18n="settings_api_mode_public"><i class="fas fa-globe"></i> Публичный</span>
                                 <label class="api-mode-switch">
                                     <input type="checkbox" id="api-mode-toggle">
                                     <span class="api-mode-slider"></span>
                                 </label>
-                                <span class="api-mode-option" id="personal-api-option"><i class="fas fa-user-lock"></i> Персональный</span>
+                                <span class="api-mode-option" id="personal-api-option" data-i18n="settings_api_mode_personal"><i class="fas fa-user-lock"></i> Персональный</span>
                             </div>
                             
                             <div class="api-status-indicator">
                                 <span class="status-dot" id="api-status-dot"></span>
-                                <span id="api-status-text">Проверка соединения...</span>
+                                <span id="api-status-text" data-i18n="settings_api_status_checking">Проверка соединения...</span>
                             </div>
                         </div>
                         
                         <div class="settings-field api-key-field">
-                            <label for="api-key"><i class="fas fa-fingerprint"></i> Персональный API ключ:</label>
+                            <label for="api-key" data-i18n="settings_api_key_personal"><i class="fas fa-fingerprint"></i> Персональный API ключ:</label>
                             <div class="api-key-input-group">
-                                <input type="password" id="api-key" class="text-input" placeholder="Введите персональный API ключ...">
-                                <button class="btn btn-toggle-pwd" id="toggle-api-key-visibility" title="Показать/скрыть ключ">
+                                <input type="password" id="api-key" class="text-input" data-i18n-placeholder="settings_api_key_placeholder" placeholder="Введите персональный API ключ...">
+                                <button class="btn btn-toggle-pwd" id="toggle-api-key-visibility" data-i18n-title="settings_api_key_toggle" title="Показать/скрыть ключ">
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
                             <div class="api-key-desc">
-                                <span id="public-key-note">
+                                <span id="public-key-note" data-i18n="settings_api_public_note">
                                     <i class="fas fa-shield-alt"></i> Используется защищенный публичный API ключ
                                 </span>
-                                <span id="personal-key-note" style="display: none;">
+                                <span id="personal-key-note" style="display: none;" data-i18n="settings_api_personal_note">
                                     <i class="fas fa-lock"></i> Используется персональный API ключ
                                 </span>
                             </div>
                         </div>
                         
                         <div class="settings-field">
-                            <button class="btn btn-primary" id="update-api-key-btn"><i class="fas fa-save"></i> Сохранить ключ</button>
-                            <button class="btn" id="reset-to-public-api-btn"><i class="fas fa-undo"></i> Сбросить к публичному API</button>
+                            <button class="btn btn-primary" id="update-api-key-btn" data-i18n="settings_api_update"><i class="fas fa-save"></i> Сохранить ключ</button>
+                            <button class="btn" id="reset-to-public-api-btn" data-i18n="settings_api_reset"><i class="fas fa-undo"></i> Сбросить к публичному API</button>
                         </div>
                     </div>
 
                     <div class="settings-group">
-                        <h3><i class="fas fa-clock"></i> Тайм-ауты</h3>
+                        <h3 data-i18n="settings_timeouts"><i class="fas fa-clock"></i> Тайм-ауты</h3>
                         <div class="settings-field">
-                            <label for="email-wait-timeout"><i class="fas fa-envelope"></i> Ожидание письма (сек):</label>
+                            <label for="email-wait-timeout" data-i18n="settings_timeout_email"><i class="fas fa-envelope"></i> Ожидание письма (сек):</label>
                             <input type="number" id="email-wait-timeout" class="number-input" value="30" min="1">
                         </div>
                         <div class="settings-field">
-                            <label for="http-timeout"><i class="fas fa-globe"></i> Тайм-аут HTTP запроса (сек):</label>
+                            <label for="http-timeout" data-i18n="settings_timeout_http"><i class="fas fa-globe"></i> Тайм-аут HTTP запроса (сек):</label>
                             <input type="number" id="http-timeout" class="number-input" value="10" min="1">
                         </div>
-                        <button class="btn btn-primary" id="save-timeouts-btn"><i class="fas fa-save"></i> Сохранить</button>
+                        <button class="btn btn-primary" id="save-timeouts-btn" data-i18n="save"><i class="fas fa-save"></i> Сохранить</button>
                     </div>
 
                     <div class="settings-group">
-                        <h3><i class="fas fa-trash-alt"></i> Автоматическое удаление</h3>
+                        <h3 data-i18n="settings_auto_delete"><i class="fas fa-trash-alt"></i> Автоматическое удаление</h3>
                         <div class="settings-field checkbox-field">
                             <input type="checkbox" id="auto-delete-inboxes" checked>
-                            <label for="auto-delete-inboxes">Автоматически удалять почтовые ящики после использования</label>
+                            <label for="auto-delete-inboxes" data-i18n="settings_auto_delete_inboxes">Автоматически удалять почтовые ящики после использования</label>
                         </div>
                         <div class="settings-field checkbox-field">
                             <input type="checkbox" id="auto-delete-emails">
-                            <label for="auto-delete-emails">Удалять письма старше:</label>
+                            <label for="auto-delete-emails" data-i18n="settings_auto_delete_emails">Удалять письма старше:</label>
                             <input type="number" id="auto-delete-days" class="number-input" value="7" min="1">
-                            <span>дней</span>
+                            <span data-i18n="settings_auto_delete_days">дней</span>
                         </div>
                         <div class="settings-field">
-                            <label><i class="fas fa-hourglass-half"></i> Таймер удаления ящика после просмотра:</label>
+                            <label data-i18n="settings_inbox_timer"><i class="fas fa-hourglass-half"></i> Таймер удаления ящика после просмотра:</label>
                             <div class="radio-controls">
                                 <label class="radio-control">
                                     <input type="radio" name="inbox-delete-timer" value="0" checked>
-                                    <span>Не удалять</span>
+                                    <span data-i18n="settings_inbox_timer_never">Не удалять</span>
                                 </label>
                                 <label class="radio-control">
                                     <input type="radio" name="inbox-delete-timer" value="5">
-                                    <span>Через 5 минут</span>
+                                    <span data-i18n="settings_inbox_timer_5min">Через 5 минут</span>
                                 </label>
                                 <label class="radio-control">
                                     <input type="radio" name="inbox-delete-timer" value="60">
-                                    <span>Через 1 час</span>
+                                    <span data-i18n="settings_inbox_timer_1hour">Через 1 час</span>
                                 </label>
                             </div>
                         </div>
-                        <button class="btn btn-primary" id="save-auto-delete-btn"><i class="fas fa-save"></i> Сохранить</button>
+                        <button class="btn btn-primary" id="save-auto-delete-btn" data-i18n="save"><i class="fas fa-save"></i> Сохранить</button>
                     </div>
 
                     <div class="settings-group">
-                        <h3><i class="fas fa-file-alt"></i> Журнал операций</h3>
+                        <h3 data-i18n="settings_logging"><i class="fas fa-file-alt"></i> Журнал операций</h3>
                         <div class="settings-field checkbox-field">
                             <input type="checkbox" id="enable-logging" checked>
-                            <label for="enable-logging">Включить журналирование</label>
+                            <label for="enable-logging" data-i18n="settings_logging_enable">Включить журналирование</label>
                         </div>
                         <div class="settings-field checkbox-field">
                             <input type="checkbox" id="save-log-to-file" checked>
-                            <label for="save-log-to-file">Сохранять журнал в файл</label>
+                            <label for="save-log-to-file" data-i18n="settings_logging_save_file">Сохранять журнал в файл</label>
                         </div>
                         <div class="settings-field">
-                            <label for="log-file-path"><i class="fas fa-folder"></i> Путь к файлу журнала:</label>
+                            <label for="log-file-path" data-i18n="settings_logging_path"><i class="fas fa-folder"></i> Путь к файлу журнала:</label>
                             <input type="text" id="log-file-path" class="text-input" value="./mailslurp.log">
                         </div>
-                        <button class="btn btn-primary" id="save-logging-btn"><i class="fas fa-save"></i> Сохранить</button>
+                        <button class="btn btn-primary" id="save-logging-btn" data-i18n="save"><i class="fas fa-save"></i> Сохранить</button>
                     </div>
                     
                     <!-- Новая секция для секретного кода -->
                     <div class="settings-group secret-code-section">
-                        <h3><i class="fas fa-unlock-alt"></i> Расширенные возможности</h3>
+                        <h3 data-i18n="settings_secret_code"><i class="fas fa-unlock-alt"></i> Расширенные возможности</h3>
                         <div class="settings-field">
-                            <label for="secret-code"><i class="fas fa-key"></i> Секретный код:</label>
+                            <label for="secret-code" data-i18n="code_label"><i class="fas fa-key"></i> Секретный код:</label>
                             <div class="secret-code-input-group">
-                                <input type="password" id="secret-code" class="text-input" placeholder="Введите секретный код для разблокировки...">
-                                <button class="btn btn-toggle-code" id="toggle-code-visibility" title="Показать/скрыть код">
+                                <input type="password" id="secret-code" class="text-input" data-i18n-placeholder="settings_secret_code_placeholder" placeholder="Введите секретный код для разблокировки...">
+                                <button class="btn btn-toggle-code" id="toggle-code-visibility" data-i18n-title="settings_secret_code_toggle" title="Показать/скрыть код">
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
                             <div class="secret-code-status" id="secret-code-status">
-                                <span class="code-inactive"><i class="fas fa-times-circle"></i> Код не активирован</span>
-                                <span class="code-active" style="display: none;"><i class="fas fa-check-circle"></i> Премиум-функции активированы</span>
+                                <span class="code-inactive" data-i18n="code_status_inactive"><i class="fas fa-times-circle"></i> Код не активирован</span>
+                                <span class="code-active" style="display: none;" data-i18n="code_status_active"><i class="fas fa-check-circle"></i> Премиум-функции активированы</span>
                             </div>
-                            <p class="secret-code-desc">Введите специальный код для разблокировки расширенных функций, включая сохранение почтовых ящиков при использовании публичного API.</p>
+                            <p class="secret-code-desc" data-i18n="settings_secret_code_desc">Введите специальный код для разблокировки расширенных функций, включая сохранение почтовых ящиков при использовании публичного API.</p>
                         </div>
-                        <button class="btn btn-primary" id="activate-code-btn"><i class="fas fa-unlock"></i> Активировать код</button>
+                        <button class="btn btn-primary" id="activate-code-btn" data-i18n="code_activate"><i class="fas fa-unlock"></i> Активировать код</button>
                     </div>
                 </div>
             </section>
@@ -935,5 +935,7 @@
         });
     </script>
     <script src="js/app.js?v=1743281999999"></script>
+    <!-- Оптимизация производительности и скроллинга -->
+    <script src="js/performance-optimizer.js?v=1743282000000"></script>
 </body>
 </html> 

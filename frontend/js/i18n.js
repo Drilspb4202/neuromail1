@@ -98,13 +98,47 @@ class I18nManager {
                 'settings_title': '⚙️ Настройки',
                 'settings_api': 'Настройки API',
                 'settings_api_key': 'API ключ:',
-                'settings_api_update': 'Обновить ключ',
-                'settings_api_reset': 'Сбросить к публичному',
+                'settings_api_key_personal': 'Персональный API ключ:',
+                'settings_api_key_placeholder': 'Введите персональный API ключ...',
+                'settings_api_key_toggle': 'Показать/скрыть ключ',
+                'settings_api_update': 'Сохранить ключ',
+                'settings_api_reset': 'Сбросить к публичному API',
                 'settings_api_mode': 'Режим API:',
+                'settings_api_mode_label': 'Режим API',
                 'settings_api_mode_public': 'Публичный',
                 'settings_api_mode_personal': 'Персональный',
                 'settings_api_key_hide': 'Скрыть',
                 'settings_api_key_show': 'Показать',
+                'settings_api_status_checking': 'Проверка соединения...',
+                'settings_api_public_note': 'Используется защищенный публичный API ключ',
+                'settings_api_personal_note': 'Используется персональный API ключ',
+                
+                // Тайм-ауты
+                'settings_timeouts': 'Тайм-ауты',
+                'settings_timeout_email': 'Ожидание письма (сек):',
+                'settings_timeout_http': 'Тайм-аут HTTP запроса (сек):',
+                
+                // Автоудаление
+                'settings_auto_delete': 'Автоматическое удаление',
+                'settings_auto_delete_inboxes': 'Автоматически удалять почтовые ящики после использования',
+                'settings_auto_delete_emails': 'Удалять письма старше:',
+                'settings_auto_delete_days': 'дней',
+                'settings_inbox_timer': 'Таймер удаления ящика после просмотра:',
+                'settings_inbox_timer_never': 'Не удалять',
+                'settings_inbox_timer_5min': 'Через 5 минут',
+                'settings_inbox_timer_1hour': 'Через 1 час',
+                
+                // Логирование
+                'settings_logging': 'Журнал операций',
+                'settings_logging_enable': 'Включить журналирование',
+                'settings_logging_save_file': 'Сохранять журнал в файл',
+                'settings_logging_path': 'Путь к файлу журнала:',
+                
+                // Секретный код
+                'settings_secret_code': 'Расширенные возможности',
+                'settings_secret_code_placeholder': 'Введите секретный код для разблокировки...',
+                'settings_secret_code_toggle': 'Показать/скрыть код',
+                'settings_secret_code_desc': 'Введите специальный код для разблокировки расширенных функций, включая сохранение почтовых ящиков при использовании публичного API.',
                 
                 // Premium
                 'premium_title': '🔑 Premium API-ключ',
@@ -246,13 +280,47 @@ class I18nManager {
                 'settings_title': '⚙️ Settings',
                 'settings_api': 'API Settings',
                 'settings_api_key': 'API key:',
-                'settings_api_update': 'Update key',
-                'settings_api_reset': 'Reset to public',
+                'settings_api_key_personal': 'Personal API key:',
+                'settings_api_key_placeholder': 'Enter personal API key...',
+                'settings_api_key_toggle': 'Show/hide key',
+                'settings_api_update': 'Save key',
+                'settings_api_reset': 'Reset to public API',
                 'settings_api_mode': 'API mode:',
+                'settings_api_mode_label': 'API Mode',
                 'settings_api_mode_public': 'Public',
                 'settings_api_mode_personal': 'Personal',
                 'settings_api_key_hide': 'Hide',
                 'settings_api_key_show': 'Show',
+                'settings_api_status_checking': 'Checking connection...',
+                'settings_api_public_note': 'Using protected public API key',
+                'settings_api_personal_note': 'Using personal API key',
+                
+                // Timeouts
+                'settings_timeouts': 'Timeouts',
+                'settings_timeout_email': 'Email wait timeout (sec):',
+                'settings_timeout_http': 'HTTP request timeout (sec):',
+                
+                // Auto-delete
+                'settings_auto_delete': 'Automatic Deletion',
+                'settings_auto_delete_inboxes': 'Automatically delete mailboxes after use',
+                'settings_auto_delete_emails': 'Delete emails older than:',
+                'settings_auto_delete_days': 'days',
+                'settings_inbox_timer': 'Inbox deletion timer after viewing:',
+                'settings_inbox_timer_never': 'Never delete',
+                'settings_inbox_timer_5min': 'After 5 minutes',
+                'settings_inbox_timer_1hour': 'After 1 hour',
+                
+                // Logging
+                'settings_logging': 'Operation Log',
+                'settings_logging_enable': 'Enable logging',
+                'settings_logging_save_file': 'Save log to file',
+                'settings_logging_path': 'Log file path:',
+                
+                // Secret code
+                'settings_secret_code': 'Advanced Features',
+                'settings_secret_code_placeholder': 'Enter secret code to unlock...',
+                'settings_secret_code_toggle': 'Show/hide code',
+                'settings_secret_code_desc': 'Enter special code to unlock advanced features, including mailbox preservation when using the public API.',
                 
                 // Premium
                 'premium_title': '🔑 Premium API Key',
