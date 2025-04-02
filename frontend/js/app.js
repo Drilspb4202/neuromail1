@@ -81,25 +81,15 @@ class MailSlurpApp {
             // Инициализируем настройки API ключа и режима
             this.initApiKeySettings();
             
-            // Скрываем прелоадер после полной инициализации
-            setTimeout(() => {
-                const preloader = document.querySelector('.preloader');
-                if (preloader) {
-                    preloader.classList.add('hidden');
-                }
-            }, 800);
+            // Инициализируем поддержку интернационализации
+            this.initInternationalization();
             
             console.log('Инициализация приложения завершена');
             return Promise.resolve();
         } catch (error) {
             console.error('Ошибка при инициализации приложения:', error);
             
-            // Скрываем прелоадер даже при ошибке
-            const preloader = document.querySelector('.preloader');
-            if (preloader) {
-                preloader.classList.add('hidden');
-            }
-            
+            // Показываем сообщение об ошибке
             this.ui.showToast(`Ошибка при инициализации: ${error.message}`, 'error', 10000);
             return Promise.reject(error);
         }
@@ -1764,6 +1754,150 @@ class MailSlurpApp {
             secretCodeInput.type = 'password';
             eyeIcon.className = 'fas fa-eye';
         }
+    }
+    
+    /**
+     * Инициализация поддержки интернационализации
+     */
+    initInternationalization() {
+        // Проверяем, загружен ли уже модуль i18n
+        if (window.i18n) {
+            console.log('Модуль интернационализации инициализирован');
+            
+            // Инициализируем переводы для ключевых элементов, с которыми взаимодействует пользователь
+            this.applyTranslationsToElements();
+            
+            // Подписываемся на события изменения языка
+            document.addEventListener('language-changed', (event) => {
+                console.log('Язык изменен на:', event.detail.language);
+                
+                // Перезагружаем переводы для динамических элементов
+                this.applyTranslationsToElements();
+                
+                // Добавляем класс для анимации элементов при смене языка
+                document.querySelectorAll('[data-i18n]').forEach(element => {
+                    element.classList.add('lang-changed');
+                    
+                    // Удаляем класс после завершения анимации
+                    setTimeout(() => {
+                        element.classList.remove('lang-changed');
+                    }, 300);
+                });
+            });
+        } else {
+            console.warn('Модуль интернационализации не загружен');
+            
+            // Пытаемся загрузить модуль
+            const script = document.createElement('script');
+            script.src = 'js/i18n.js?v=' + Date.now();
+            script.onload = () => {
+                console.log('Модуль i18n загружен динамически');
+                this.initInternationalization();
+            };
+            script.onerror = (err) => {
+                console.error('Ошибка загрузки модуля i18n:', err);
+                this.ui.showToast('Не удалось загрузить модуль переводов', 'error');
+            };
+            document.head.appendChild(script);
+        }
+    }
+    
+    /**
+     * Применить переводы к ключевым элементам интерфейса
+     */
+    applyTranslationsToElements() {
+        if (!window.i18n) return;
+        
+        // Обновляем заголовки и тексты в соответствии с текущим языком
+        try {
+            // Секция почтовых ящиков
+            const inboxHeaderEl = document.querySelector('#inboxes-section .section-header h2');
+            if (inboxHeaderEl) {
+                inboxHeaderEl.textContent = window.i18n.t('inbox_management');
+            }
+            
+            const createInboxBtn = document.querySelector('#create-inbox-btn');
+            if (createInboxBtn) {
+                const icon = createInboxBtn.querySelector('i').outerHTML;
+                createInboxBtn.innerHTML = icon + ' ' + window.i18n.t('create_new_inbox');
+            }
+            
+            // Секция писем
+            const emailsHeaderEl = document.querySelector('#current-inbox-title');
+            if (emailsHeaderEl) {
+                emailsHeaderEl.textContent = window.i18n.t('emails_title');
+            }
+            
+            const sendEmailBtn = document.querySelector('#send-email-btn');
+            if (sendEmailBtn) {
+                const icon = sendEmailBtn.querySelector('i').outerHTML;
+                sendEmailBtn.innerHTML = icon + ' ' + window.i18n.t('emails_send');
+            }
+            
+            // Таблица почтовых ящиков
+            const inboxTableHeaders = document.querySelectorAll('#inboxes-table th');
+            if (inboxTableHeaders.length >= 4) {
+                inboxTableHeaders[0].textContent = window.i18n.t('inbox_id');
+                inboxTableHeaders[1].textContent = window.i18n.t('inbox_email');
+                inboxTableHeaders[2].textContent = window.i18n.t('inbox_created');
+                inboxTableHeaders[3].textContent = window.i18n.t('inbox_actions');
+            }
+            
+            // Таблица писем
+            const emailTableHeaders = document.querySelectorAll('#emails-table th');
+            if (emailTableHeaders.length >= 4) {
+                emailTableHeaders[0].textContent = window.i18n.t('emails_from');
+                emailTableHeaders[1].textContent = window.i18n.t('emails_subject');
+                emailTableHeaders[2].textContent = window.i18n.t('emails_received');
+                emailTableHeaders[3].textContent = window.i18n.t('inbox_actions');
+            }
+            
+            // Модальные окна
+            document.querySelectorAll('.modal-header h3').forEach(el => {
+                if (el.textContent.includes('Создание')) {
+                    el.textContent = window.i18n.t('modal_create_inbox') || 'Создание нового почтового ящика';
+                } else if (el.textContent.includes('Отправка')) {
+                    el.textContent = window.i18n.t('modal_send_email');
+                } else if (el.textContent.includes('Подтверждение')) {
+                    el.textContent = window.i18n.t('modal_delete_inbox') || 'Подтверждение удаления';
+                }
+            });
+            
+            // Кнопки в модальных окнах
+            document.querySelectorAll('.modal-close').forEach(el => {
+                if (el.tagName === 'BUTTON' && !el.querySelector('i')) {
+                    el.textContent = window.i18n.t('cancel');
+                }
+            });
+            
+            document.querySelectorAll('.btn-primary').forEach(el => {
+                if (el.id === 'confirm-create-inbox') {
+                    el.textContent = window.i18n.t('create');
+                } else if (el.id === 'confirm-send-email') {
+                    el.textContent = window.i18n.t('send');
+                } else if (el.id === 'confirm-delete') {
+                    el.textContent = window.i18n.t('delete');
+                }
+            });
+            
+            // Информационная панель
+            const welcomeTitle = document.querySelector('.info-panel-content h4');
+            if (welcomeTitle) {
+                welcomeTitle.textContent = window.i18n.t('welcome_title');
+            }
+            
+            console.log('Переводы применены к элементам интерфейса');
+        } catch (error) {
+            console.error('Ошибка при применении переводов:', error);
+        }
+    }
+    
+    /**
+     * Инициализация приложения завершена, удаляем прелоадер
+     */
+    hidePreloader() {
+        // Функция больше не нужна, так как прелоадер удален из HTML
+        return;
     }
 }
 

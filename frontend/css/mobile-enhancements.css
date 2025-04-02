@@ -1,0 +1,89 @@
+/* === УЛУЧШЕННЫЕ СТИЛИ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ === */
+
+/* Улучшение тост-уведомлений */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    min-width: 250px;
+    max-width: 450px;
+    background-color: var(--card-bg);
+    border-left: 4px solid var(--secondary-color);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    box-shadow: var(--shadow-lg);
+    transform: translateY(100px);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.toast.active {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+}
+
+.toast.success {
+    border-left-color: var(--success-color);
+}
+
+.toast.error {
+    border-left-color: var(--error-color);
+}
+
+.toast.warning {
+    border-left-color: var(--warning-color);
+}
+
+.toast-message {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.toast-close {
+    cursor: pointer;
+    margin-left: 10px;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+}
+
+.toast-close:hover {
+    color: var(--text-color);
+    transform: scale(1.1);
+}
+
+/* Мобильная адаптация для тостов */
+@media (max-width: 576px) {
+    .toast {
+        left: 20px;
+        right: 20px;
+        max-width: calc(100vw - 40px);
+    }
+}
+
+/* Улучшенные анимации для переключения языка */
+[data-i18n].lang-changed {
+    animation: langHighlight 0.5s ease;
+}
+
+@keyframes langHighlight {
+    0% {
+        background-color: rgba(138, 43, 226, 0.05);
+        transform: scale(1);
+    }
+    50% {
+        background-color: rgba(138, 43, 226, 0.1);
+        transform: scale(1.02);
+    }
+    100% {
+        background-color: transparent;
+        transform: scale(1);
+    }
+} 
