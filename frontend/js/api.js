@@ -575,6 +575,14 @@ class MailSlurpApi {
     }
 
     /**
+     * Проверяет, используется ли персональный API-ключ
+     * @returns {boolean} - Используется ли персональный API-ключ
+     */
+    isPersonalKey() {
+        return this.usePersonalApi && this.personalApiKey;
+    }
+
+    /**
      * Удалить почтовый ящик
      * @param {string} inboxId - ID почтового ящика
      * @returns {Promise<Object>} - Результат операции

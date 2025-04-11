@@ -39,516 +39,552 @@
     <script src="js/api-keys-checker.js"></script>
 </head>
 <body>
-    <!-- Прелоадер удален -->
-
-    <div class="app-container">
-        <header class="app-header">
-            <div class="header-actions left-actions">
-                <button id="refresh-btn" class="btn btn-icon clickable-element" title="Обновить данные" data-i18n-title="refresh">
-                    <i class="fas fa-sync-alt"></i>
-                </button>
+    <!-- Рекламные блоки -->
+    <div class="ad-container">
+        <div class="ad-left">
+            <div class="ad-unit">
+                <div class="ad-label">Реклама</div>
+                <h3>Премиум-доступ</h3>
+                <p>Получите безлимитные почтовые ящики и расширенную поддержку</p>
+                <button class="btn btn-primary" style="margin-top: 15px;">Подробнее</button>
             </div>
-            <div class="logo">
-                <img src="img/mail-logo.svg" alt="NeuroMail Logo" id="logo-placeholder">
-                <h1 data-i18n="app_name">NeuroMail</h1>
+            <div class="ad-unit">
+                <div class="ad-label">Спонсорский контент</div>
+                <h3>Защита Данных</h3>
+                <p>Современные технологии защиты персональных данных от лучших специалистов</p>
+                <button class="btn btn-primary" style="margin-top: 15px;">Узнать больше</button>
             </div>
-            <div class="header-actions">
-                <button id="generate-data-btn" class="btn btn-primary clickable-element" title="Сгенерировать данные">
-                    <i class="fas fa-user-plus"></i> <span data-i18n="create">Генератор данных</span>
-                </button>
-                <div class="user-profile clickable-element">
-                    <i class="fas fa-user-circle"></i>
-                </div>
-            </div>
-        </header>
-
-        <!-- Языковой переключатель -->
-        <div class="language-switcher">
-            <button id="lang-ru" class="lang-btn active clickable-element" data-lang="ru">RU</button>
-            <button id="lang-en" class="lang-btn clickable-element" data-lang="en">EN</button>
         </div>
 
-        <nav class="app-nav">
-            <div class="nav-item active" data-target="inboxes-section">
-                <i class="fas fa-inbox"></i>
-                <span data-i18n="nav_inboxes">Почтовые ящики</span>
-            </div>
-            <div class="nav-item" data-target="emails-section">
-                <div class="notification-badge" id="unread-count">0</div>
-                <i class="fas fa-envelope"></i>
-                <span data-i18n="nav_emails">Письма</span>
-            </div>
-            <div class="nav-item" data-target="stats-section">
-                <i class="fas fa-chart-bar"></i>
-                <span data-i18n="nav_stats">Статистика</span>
-            </div>
-            <div class="nav-item" data-target="settings-section">
-                <i class="fas fa-cog"></i>
-                <span data-i18n="nav_settings">Настройки</span>
-            </div>
-            <div class="nav-item" data-target="premium-section">
-                <i class="fas fa-key"></i>
-                <span data-i18n="nav_premium">Premium</span>
-            </div>
-            <div class="nav-item" data-target="donate-section">
-                <i class="fas fa-heart"></i>
-                <span data-i18n="nav_donate">Поддержать развитие проекта</span>
-            </div>
-        </nav>
-
-        <main class="app-content">
-            <!-- Секция почтовых ящиков -->
-            <section id="inboxes-section" class="content-section active">
-                <div class="section-header">
-                    <h2 data-i18n="inbox_management">📬 Управление почтовыми ящиками</h2>
-                    <button id="create-inbox-btn" class="btn btn-primary clickable-element">
-                        <i class="fas fa-plus"></i> <span data-i18n="create_new_inbox">Создать новый</span>
+        <div class="app-container">
+            <header class="app-header">
+                <div class="header-actions left-actions">
+                    <button id="refresh-btn" class="btn btn-icon clickable-element" title="Обновить данные" data-i18n-title="refresh">
+                        <i class="fas fa-sync-alt"></i>
                     </button>
                 </div>
-                
-                <div class="info-panel">
-                    <div class="info-panel-icon">
-                        <i class="fas fa-magic"></i>
-                    </div>
-                    <div class="info-panel-content">
-                        <h4 data-i18n="welcome_title">✨ Добро пожаловать в NeuroMail!</h4>
-                        <p data-i18n="welcome_desc">NeuroMail — это мощный инструмент для работы с временными почтовыми ящиками. Создавайте виртуальные ящики для защиты вашей основной почты от спама и нежелательных рассылок.</p>
-                        <div class="feature-list">
-                            <div class="feature-item">
-                                <i class="fas fa-shield-alt"></i>
-                                <span data-i18n="feature_privacy">Защита конфиденциальности при регистрации на сайтах</span>
-                            </div>
-                            <div class="feature-item">
-                                <i class="fas fa-bolt"></i>
-                                <span data-i18n="feature_instant">Мгновенное создание и удаление почтовых ящиков</span>
-                            </div>
-                            <div class="feature-item">
-                                <i class="fas fa-envelope-open-text"></i>
-                                <span data-i18n="feature_realtime">Просмотр писем в реальном времени с уведомлениями</span>
-                            </div>
-                        </div>
-                        <p><strong data-i18n="tip">Совет:</strong> <span data-i18n="tip_copy">Нажмите на адрес электронной почты в таблице, чтобы скопировать его в буфер обмена.</span></p>
-                        <div class="warning-note">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <span><strong data-i18n="warning">Важное примечание:</strong> <span data-i18n="vpn_warning">Для корректной работы сервиса необходимо использовать VPN. В настоящее время сервис может работать нестабильно на мобильных устройствах.</span></span>
-                        </div>
-                        <p class="public-key-note"><i class="fas fa-clock"></i> <strong data-i18n="note">Обратите внимание:</strong> <span data-i18n="public_api_note">При использовании публичного API ключа почтовые ящики автоматически удаляются через 5 минут.</span></p>
-                    </div>
+                <div class="logo">
+                    <img src="img/mail-logo.svg" alt="NeuroMail Logo" id="logo-placeholder">
+                    <h1 data-i18n="app_name">NeuroMail</h1>
                 </div>
-                
-                <div class="inbox-list-container">
-                    <table class="data-table" id="inboxes-table">
-                        <thead>
-                            <tr>
-                                <th data-i18n="inbox_id">ID</th>
-                                <th data-i18n="inbox_email">Email адрес</th>
-                                <th data-i18n="inbox_created">Создан</th>
-                                <th data-i18n="inbox_actions">Действия</th>
-                            </tr>
-                        </thead>
-                        <tbody id="inboxes-list">
-                            <!-- Данные будут добавлены через JavaScript -->
-                            <tr class="loading-placeholder">
-                                <td colspan="4" data-i18n="inbox_loading">Загрузка почтовых ящиков...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="section-header">
-                    <h2>📊 Статистика использования</h2>
-                </div>
-                <div class="stats-cards">
-                    <div class="stat-card">
-                        <h3>Всего ящиков</h3>
-                        <div class="stat-value" id="total-inboxes">-/-</div>
-                        <div class="progress-bar">
-                            <div class="progress" style="width: 0%"></div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <h3>API запросов</h3>
-                        <div class="stat-value" id="api-requests">-/-</div>
-                        <div class="progress-bar">
-                            <div class="progress" style="width: 0%"></div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Секция писем -->
-            <section id="emails-section" class="content-section">
-                <div class="section-header">
-                    <h2 id="current-inbox-title" data-i18n="emails_title">📧 Письма</h2>
-                    <button id="send-email-btn" class="btn btn-primary clickable-element">
-                        <i class="fas fa-paper-plane"></i> <span data-i18n="emails_send">Отправить письмо</span>
+                <div class="header-actions">
+                    <button id="generate-data-btn" class="btn btn-primary clickable-element" title="Сгенерировать данные">
+                        <i class="fas fa-user-plus"></i> <span data-i18n="create">Генератор данных</span>
                     </button>
+                    <div class="user-profile clickable-element">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
                 </div>
-                
-                <div class="email-list-container">
-                    <table class="data-table" id="emails-table">
-                        <thead>
-                            <tr>
-                                <th data-i18n="emails_from">От кого</th>
-                                <th data-i18n="emails_subject">Тема</th>
-                                <th data-i18n="emails_received">Получено</th>
-                                <th data-i18n="inbox_actions">Действия</th>
-                            </tr>
-                        </thead>
-                        <tbody id="emails-list">
-                            <!-- Данные будут добавлены через JavaScript -->
-                            <tr class="no-inbox-selected">
-                                <td colspan="4" data-i18n="emails_no_inbox">Выберите почтовый ящик для просмотра писем</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            </header>
 
-                <div class="email-viewer" id="email-viewer">
-                    <div class="email-viewer-header">
-                        <h3>📨 Просмотр письма</h3>
-                        <button class="btn btn-icon" id="close-email-btn">
-                            <i class="fas fa-times"></i>
+            <!-- Языковой переключатель -->
+            <div class="language-switcher">
+                <button id="lang-ru" class="lang-btn active clickable-element" data-lang="ru">RU</button>
+                <button id="lang-en" class="lang-btn clickable-element" data-lang="en">EN</button>
+            </div>
+
+            <nav class="app-nav">
+                <div class="nav-item active" data-target="inboxes-section">
+                    <i class="fas fa-inbox"></i>
+                    <span data-i18n="nav_inboxes">Почтовые ящики</span>
+                </div>
+                <div class="nav-item" data-target="emails-section">
+                    <div class="notification-badge" id="unread-count">0</div>
+                    <i class="fas fa-envelope"></i>
+                    <span data-i18n="nav_emails">Письма</span>
+                </div>
+                <div class="nav-item" data-target="settings-section">
+                    <i class="fas fa-cog"></i>
+                    <span data-i18n="nav_settings">Настройки</span>
+                </div>
+                <div class="nav-item" data-target="premium-section">
+                    <i class="fas fa-key"></i>
+                    <span data-i18n="nav_premium">Premium</span>
+                </div>
+                <div class="nav-item" data-target="donate-section">
+                    <i class="fas fa-heart"></i>
+                    <span data-i18n="nav_donate">Поддержать</span>
+                </div>
+            </nav>
+
+            <main class="app-content">
+                <!-- Секция почтовых ящиков -->
+                <section id="inboxes-section" class="content-section active">
+                    <div class="section-header">
+                        <h2 data-i18n="inbox_management">📬 Управление почтовыми ящиками</h2>
+                        <button id="create-inbox-btn" class="btn btn-primary clickable-element">
+                            <i class="fas fa-plus"></i> <span data-i18n="create_new_inbox">Создать новый</span>
                         </button>
                     </div>
-                    <div class="email-details">
-                        <div class="email-detail-row">
-                            <span class="email-label">От:</span>
-                            <span id="email-from"></span>
-                        </div>
-                        <div class="email-detail-row">
-                            <span class="email-label">Кому:</span>
-                            <span id="email-to"></span>
-                        </div>
-                        <div class="email-detail-row">
-                            <span class="email-label">Тема:</span>
-                            <span id="email-subject"></span>
-                        </div>
-                        <div class="email-detail-row">
-                            <span class="email-label">Дата:</span>
-                            <span id="email-date"></span>
-                        </div>
-                    </div>
-                    <div class="email-body" id="email-body">
-                        <!-- Содержимое письма будет добавлено через JavaScript -->
-                    </div>
-                </div>
-            </section>
-
-            <!-- Секция статистики -->
-            <section id="stats-section" class="content-section">
-                <div class="section-header">
-                    <h2>📈 Использование API</h2>
-                </div>
-                
-                <div class="chart-container">
-                    <canvas id="api-usage-chart"></canvas>
-                </div>
-
-                <div class="section-header">
-                    <h2>📊 Сводная статистика</h2>
-                </div>
-                
-                <div class="stats-cards">
-                    <div class="stat-card">
-                        <h3>Всего ящиков</h3>
-                        <div class="stat-value" id="stats-total-inboxes">-/-</div>
-                        <div class="progress-bar">
-                            <div class="progress" style="width: 0%"></div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <h3>API запросов</h3>
-                        <div class="stat-value" id="stats-api-requests">-/-</div>
-                        <div class="progress-bar">
-                            <div class="progress" style="width: 0%"></div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Отправлено писем</h3>
-                        <div class="stat-value" id="stats-sent-emails">-</div>
-                        <div class="progress-bar">
-                            <div class="progress" style="width: 70%"></div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Получено писем</h3>
-                        <div class="stat-value" id="stats-received-emails">-</div>
-                        <div class="progress-bar">
-                            <div class="progress" style="width: 60%"></div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Секция настроек -->
-            <section id="settings-section" class="content-section">
-                <div class="section-header">
-                    <h2 data-i18n="settings_title"><i class="fas fa-cog"></i> Настройки</h2>
-                </div>
-                
-                <div class="settings-form">
-                    <div class="settings-group">
-                        <h3 data-i18n="settings_api"><i class="fas fa-key"></i> API ключ</h3>
-                        
-                        <!-- Улучшенный блок для выбора типа API и отображения статуса -->
-                        <div class="api-mode-selector">
-                            <div class="api-mode-label" data-i18n="settings_api_mode_label"><i class="fas fa-exchange-alt"></i> Режим API</div>
-                            <div class="api-mode-toggle">
-                                <span class="api-mode-option" id="public-api-option" data-i18n="settings_api_mode_public"><i class="fas fa-globe"></i> Публичный</span>
-                                <label class="api-mode-switch">
-                                    <input type="checkbox" id="api-mode-toggle">
-                                    <span class="api-mode-slider"></span>
-                                </label>
-                                <span class="api-mode-option" id="personal-api-option" data-i18n="settings_api_mode_personal"><i class="fas fa-user-lock"></i> Персональный</span>
-                            </div>
-                            
-                            <div class="api-status-indicator">
-                                <span class="status-dot" id="api-status-dot"></span>
-                                <span id="api-status-text" data-i18n="settings_api_status_checking">Проверка соединения...</span>
-                            </div>
-                        </div>
-                        
-                        <div class="settings-field api-key-field">
-                            <label for="api-key" data-i18n="settings_api_key_personal"><i class="fas fa-fingerprint"></i> Персональный API ключ:</label>
-                            <div class="api-key-input-group">
-                                <input type="password" id="api-key" class="text-input" data-i18n-placeholder="settings_api_key_placeholder" placeholder="Введите персональный API ключ...">
-                                <button class="btn btn-toggle-pwd" id="toggle-api-key-visibility" data-i18n-title="settings_api_key_toggle" title="Показать/скрыть ключ">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
-                            <div class="api-key-desc">
-                                <span id="public-key-note" data-i18n="settings_api_public_note">
-                                    <i class="fas fa-shield-alt"></i> Используется защищенный публичный API ключ
-                                </span>
-                                <span id="personal-key-note" style="display: none;" data-i18n="settings_api_personal_note">
-                                    <i class="fas fa-lock"></i> Используется персональный API ключ
-                                </span>
-                            </div>
-                        </div>
-                        
-                        <div class="settings-field">
-                            <button class="btn btn-primary" id="update-api-key-btn" data-i18n="settings_api_update"><i class="fas fa-save"></i> Сохранить ключ</button>
-                            <button class="btn" id="reset-to-public-api-btn" data-i18n="settings_api_reset"><i class="fas fa-undo"></i> Сбросить к публичному API</button>
-                        </div>
-                    </div>
-
-                    <div class="settings-group">
-                        <h3 data-i18n="settings_timeouts"><i class="fas fa-clock"></i> Тайм-ауты</h3>
-                        <div class="settings-field">
-                            <label for="email-wait-timeout" data-i18n="settings_timeout_email"><i class="fas fa-envelope"></i> Ожидание письма (сек):</label>
-                            <input type="number" id="email-wait-timeout" class="number-input" value="30" min="1">
-                        </div>
-                        <div class="settings-field">
-                            <label for="http-timeout" data-i18n="settings_timeout_http"><i class="fas fa-globe"></i> Тайм-аут HTTP запроса (сек):</label>
-                            <input type="number" id="http-timeout" class="number-input" value="10" min="1">
-                        </div>
-                        <button class="btn btn-primary" id="save-timeouts-btn" data-i18n="save"><i class="fas fa-save"></i> Сохранить</button>
-                    </div>
-
-                    <div class="settings-group">
-                        <h3 data-i18n="settings_auto_delete"><i class="fas fa-trash-alt"></i> Автоматическое удаление</h3>
-                        <div class="settings-field checkbox-field">
-                            <input type="checkbox" id="auto-delete-inboxes" checked>
-                            <label for="auto-delete-inboxes" data-i18n="settings_auto_delete_inboxes">Автоматически удалять почтовые ящики после использования</label>
-                        </div>
-                        <div class="settings-field checkbox-field">
-                            <input type="checkbox" id="auto-delete-emails">
-                            <label for="auto-delete-emails" data-i18n="settings_auto_delete_emails">Удалять письма старше:</label>
-                            <input type="number" id="auto-delete-days" class="number-input" value="7" min="1">
-                            <span data-i18n="settings_auto_delete_days">дней</span>
-                        </div>
-                        <div class="settings-field">
-                            <label data-i18n="settings_inbox_timer"><i class="fas fa-hourglass-half"></i> Таймер удаления ящика после просмотра:</label>
-                            <div class="radio-controls">
-                                <label class="radio-control">
-                                    <input type="radio" name="inbox-delete-timer" value="0" checked>
-                                    <span data-i18n="settings_inbox_timer_never">Не удалять</span>
-                                </label>
-                                <label class="radio-control">
-                                    <input type="radio" name="inbox-delete-timer" value="5">
-                                    <span data-i18n="settings_inbox_timer_5min">Через 5 минут</span>
-                                </label>
-                                <label class="radio-control">
-                                    <input type="radio" name="inbox-delete-timer" value="60">
-                                    <span data-i18n="settings_inbox_timer_1hour">Через 1 час</span>
-                                </label>
-                            </div>
-                        </div>
-                        <button class="btn btn-primary" id="save-auto-delete-btn" data-i18n="save"><i class="fas fa-save"></i> Сохранить</button>
-                    </div>
-
-                    <div class="settings-group">
-                        <h3 data-i18n="settings_logging"><i class="fas fa-file-alt"></i> Журнал операций</h3>
-                        <div class="settings-field checkbox-field">
-                            <input type="checkbox" id="enable-logging" checked>
-                            <label for="enable-logging" data-i18n="settings_logging_enable">Включить журналирование</label>
-                        </div>
-                        <div class="settings-field checkbox-field">
-                            <input type="checkbox" id="save-log-to-file" checked>
-                            <label for="save-log-to-file" data-i18n="settings_logging_save_file">Сохранять журнал в файл</label>
-                        </div>
-                        <div class="settings-field">
-                            <label for="log-file-path" data-i18n="settings_logging_path"><i class="fas fa-folder"></i> Путь к файлу журнала:</label>
-                            <input type="text" id="log-file-path" class="text-input" value="./mailslurp.log">
-                        </div>
-                        <button class="btn btn-primary" id="save-logging-btn" data-i18n="save"><i class="fas fa-save"></i> Сохранить</button>
+                    
+                    <!-- Список почтовых ящиков -->
+                    <div class="inbox-list-container">
+                        <table class="data-table" id="inboxes-table">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="inbox_id">ID</th>
+                                    <th data-i18n="inbox_email">Email адрес</th>
+                                    <th data-i18n="inbox_created">Создан</th>
+                                    <th data-i18n="inbox_actions">Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inboxes-list">
+                                <!-- Данные будут добавлены через JavaScript -->
+                                <tr class="loading-placeholder">
+                                    <td colspan="4" data-i18n="inbox_loading">Загрузка почтовых ящиков...</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                     
-                    <!-- Новая секция для секретного кода -->
-                    <div class="settings-group secret-code-section">
-                        <h3 data-i18n="settings_secret_code"><i class="fas fa-unlock-alt"></i> Расширенные возможности</h3>
-                        <div class="settings-field">
-                            <label for="secret-code" data-i18n="code_label"><i class="fas fa-key"></i> Секретный код:</label>
-                            <div class="secret-code-input-group">
-                                <input type="password" id="secret-code" class="text-input" data-i18n-placeholder="settings_secret_code_placeholder" placeholder="Введите секретный код для разблокировки...">
-                                <button class="btn btn-toggle-code" id="toggle-code-visibility" data-i18n-title="settings_secret_code_toggle" title="Показать/скрыть код">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
-                            <div class="secret-code-status" id="secret-code-status">
-                                <span class="code-inactive" data-i18n="code_status_inactive"><i class="fas fa-times-circle"></i> Код не активирован</span>
-                                <span class="code-active" style="display: none;" data-i18n="code_status_active"><i class="fas fa-check-circle"></i> Премиум-функции активированы</span>
-                            </div>
-                            <p class="secret-code-desc" data-i18n="settings_secret_code_desc">Введите специальный код для разблокировки расширенных функций, включая сохранение почтовых ящиков при использовании публичного API.</p>
+                    <!-- Приветственное сообщение и информация -->
+                    <div class="info-panel">
+                        <div class="info-panel-icon">
+                            <i class="fas fa-magic"></i>
                         </div>
-                        <button class="btn btn-primary" id="activate-code-btn" data-i18n="code_activate"><i class="fas fa-unlock"></i> Активировать код</button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Premium API Key Section -->
-            <section id="premium-section" class="content-section">
-                <div class="section-header">
-                    <h2 class="section-title" data-i18n="premium_title">🔑 Premium API-ключ</h2>
-                </div>
-                
-                <div class="premium-container">
-                    <div class="premium-card">
-                        <div class="premium-header">
-                            <h3 data-i18n="premium_subtitle">Получите персональный доступ к сервису</h3>
-                            <div class="premium-price">
-                                <span class="price-amount">5 USDT</span>
-                                <span class="price-period" data-i18n="premium_price_period">/ месяц</span>
-                            </div>
-                        </div>
-                        
-                        <div class="premium-body">
-                            <div class="premium-features">
-                                <div class="feature">
-                                    <i class="fas fa-check-circle"></i>
-                                    <span data-i18n="premium_feature_1">10 персональных почтовых ящиков</span>
+                        <div class="info-panel-content">
+                            <h4 data-i18n="welcome_title">✨ Добро пожаловать в NeuroMail!</h4>
+                            <p data-i18n="welcome_desc">NeuroMail — это мощный инструмент для работы с временными почтовыми ящиками. Создавайте виртуальные ящики для защиты вашей основной почты от спама и нежелательных рассылок.</p>
+                            <div class="feature-list">
+                                <div class="feature-item">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <span data-i18n="feature_privacy">Защита конфиденциальности при регистрации на сайтах</span>
                                 </div>
-                                <div class="feature">
-                                    <i class="fas fa-check-circle"></i>
-                                    <span data-i18n="premium_feature_2">Полная конфиденциальность ваших данных</span>
+                                <div class="feature-item">
+                                    <i class="fas fa-bolt"></i>
+                                    <span data-i18n="feature_instant">Мгновенное создание и удаление почтовых ящиков</span>
                                 </div>
-                                <div class="feature">
-                                    <i class="fas fa-check-circle"></i>
-                                    <span data-i18n="premium_feature_3">Мгновенное получение писем и уведомления</span>
-                                </div>
-                                <div class="feature">
-                                    <i class="fas fa-check-circle"></i>
-                                    <span data-i18n="premium_feature_4">Возможность удалять и создавать новые ящики</span>
-                                </div>
-                                <div class="feature">
-                                    <i class="fas fa-check-circle"></i>
-                                    <span data-i18n="premium_feature_5">Прием почты со всех популярных сервисов</span>
-                                </div>
-                                <div class="feature">
-                                    <i class="fas fa-check-circle"></i>
-                                    <span data-i18n="premium_feature_6">Идеально для кодов регистрации и проверочных ссылок</span>
+                                <div class="feature-item">
+                                    <i class="fas fa-envelope-open-text"></i>
+                                    <span data-i18n="feature_realtime">Просмотр писем в реальном времени с уведомлениями</span>
                                 </div>
                             </div>
-                            
-                            <div class="premium-warning">
+                            <p><strong data-i18n="tip">Совет:</strong> <span data-i18n="tip_copy">Нажмите на адрес электронной почты в таблице, чтобы скопировать его в буфер обмена.</span></p>
+                            <div class="warning-note">
                                 <i class="fas fa-exclamation-triangle"></i>
-                                <p data-i18n="premium_warning">Без Premium-ключа все пользователи делят общий доступ к API, что ограничивает приватность и может привести к потере доступа к вашим ящикам.</p>
+                                <span><strong data-i18n="warning">Важное примечание:</strong> <span data-i18n="vpn_warning">Для корректной работы сервиса необходимо использовать VPN. В настоящее время сервис может работать нестабильно на мобильных устройствах.</span></span>
                             </div>
-                            
-                            <div class="premium-contact">
-                                <h4 data-i18n="premium_contact_title">Как получить персональный API-ключ:</h4>
-                                <p data-i18n="premium_contact_message">Просто свяжитесь с нами в Telegram:</p>
-                                <a href="https://t.me/AromaFlow_DoTERRA" class="telegram-button" target="_blank">
-                                    <i class="fab fa-telegram"></i>
-                                    @AromaFlow_DoTERRA
-                                </a>
-                                <p class="contact-info" data-i18n="premium_payment_info">Оплата принимается в USDT. После оплаты вы получите ваш персональный API-ключ, который нужно будет ввести в разделе "Настройки".</p>
+                            <p class="public-key-note"><i class="fas fa-clock"></i> <strong data-i18n="note">Обратите внимание:</strong> <span data-i18n="public_api_note">При использовании публичного API ключа почтовые ящики автоматически удаляются через 5 минут.</span></p>
+                        </div>
+                    </div>
+
+                    <div class="section-header">
+                        <h2>📊 Статистика использования</h2>
+                    </div>
+                    <div class="stats-cards">
+                        <div class="stat-card">
+                            <h3>Всего ящиков</h3>
+                            <div class="stat-value" id="total-inboxes">-/-</div>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 0%"></div>
                             </div>
                         </div>
+                        <div class="stat-card">
+                            <h3>API запросов</h3>
+                            <div class="stat-value" id="api-requests">-/-</div>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Секция писем -->
+                <section id="emails-section" class="content-section">
+                    <div class="section-header">
+                        <h2 id="current-inbox-title" data-i18n="emails_title">📧 Письма</h2>
+                        <button id="send-email-btn" class="btn btn-primary clickable-element">
+                            <i class="fas fa-paper-plane"></i> <span data-i18n="emails_send">Отправить письмо</span>
+                        </button>
                     </div>
                     
-                    <div class="testimonials">
-                        <h3 data-i18n="premium_testimonials_title">Что говорят наши пользователи</h3>
-                        <div class="testimonial">
-                            <div class="testimonial-text">
-                                "Использую для регистрации на сайтах и получения уведомлений. Персональный ключ дает полную уверенность в безопасности данных."
-                            </div>
-                            <div class="testimonial-author">Алексей К.</div>
-                        </div>
-                        <div class="testimonial">
-                            <div class="testimonial-text">
-                                "Очень удобно для работы с несколькими проектами одновременно. 10 ящиков более чем достаточно."
-                            </div>
-                            <div class="testimonial-author">Мария С.</div>
-                        </div>
+                    <div class="email-list-container">
+                        <table class="data-table" id="emails-table">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="emails_from">От кого</th>
+                                    <th data-i18n="emails_subject">Тема</th>
+                                    <th data-i18n="emails_received">Получено</th>
+                                    <th data-i18n="inbox_actions">Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody id="emails-list">
+                                <!-- Данные будут добавлены через JavaScript -->
+                                <tr class="no-inbox-selected">
+                                    <td colspan="4" data-i18n="emails_no_inbox">Выберите почтовый ящик для просмотра писем</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                </div>
-            </section>
 
-            <!-- Секция поддержки проекта -->
-            <section id="donate-section" class="content-section">
-                <div class="section-header">
-                    <h2 data-i18n="donate_title">❤️ Поддержать развитие проекта</h2>
-                    <button id="donate-btn" class="btn btn-primary">
-                        <i class="fas fa-donate"></i> <span data-i18n="donate_button">Сделать пожертвование</span>
-                    </button>
-                </div>
-                
-                <div class="info-panel">
-                    <div class="info-panel-icon">
-                        <i class="fas fa-heart"></i>
-                    </div>
-                    <div class="info-panel-content">
-                        <h4 data-i18n="donate_support_title">💖 Ваша поддержка важна для нас!</h4>
-                        <p data-i18n="donate_support_desc">Проект NeuroMail создается и поддерживается энтузиастами. Ваши пожертвования помогают нам:</p>
-                        <div class="feature-list">
-                            <div class="feature-item">
-                                <i class="fas fa-server"></i>
-                                <span data-i18n="donate_feature_1">Оплачивать серверную инфраструктуру</span>
-                            </div>
-                            <div class="feature-item">
-                                <i class="fas fa-code"></i>
-                                <span data-i18n="donate_feature_2">Разрабатывать новые функции</span>
-                            </div>
-                            <div class="feature-item">
-                                <i class="fas fa-lock"></i>
-                                <span data-i18n="donate_feature_3">Улучшать безопасность и производительность</span>
-                            </div>
-                            <div class="feature-item">
-                                <i class="fas fa-coffee"></i>
-                                <span data-i18n="donate_feature_4">Поддерживать команду разработчиков</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="donate-options">
-                    <div class="donate-card">
-                        <div class="donate-card-header">
-                            <i class="fab fa-btc"></i>
-                            <h3 data-i18n="donate_crypto">Криптовалюта</h3>
-                        </div>
-                        <div class="donate-card-body">
-                            <p data-i18n="donate_crypto_desc">Поддержите развитие проекта с помощью криптовалюты.</p>
-                            <button id="show-usdt-wallet" class="btn btn-primary">
-                                <i class="fas fa-wallet"></i> <span data-i18n="donate_show_wallet">Показать кошелек USDT TRC20</span>
+                    <div class="email-viewer" id="email-viewer">
+                        <div class="email-viewer-header">
+                            <h3>📨 Просмотр письма</h3>
+                            <button class="btn btn-icon" id="close-email-btn">
+                                <i class="fas fa-times"></i>
                             </button>
                         </div>
+                        <div class="email-details">
+                            <div class="email-detail-row">
+                                <span class="email-label">От:</span>
+                                <span id="email-from"></span>
+                            </div>
+                            <div class="email-detail-row">
+                                <span class="email-label">Кому:</span>
+                                <span id="email-to"></span>
+                            </div>
+                            <div class="email-detail-row">
+                                <span class="email-label">Тема:</span>
+                                <span id="email-subject"></span>
+                            </div>
+                            <div class="email-detail-row">
+                                <span class="email-label">Дата:</span>
+                                <span id="email-date"></span>
+                            </div>
+                        </div>
+                        <div class="email-body" id="email-body">
+                            <!-- Содержимое письма будет добавлено через JavaScript -->
+                        </div>
                     </div>
-                </div>
-            </section>
-        </main>
+                </section>
+
+                <!-- Секция статистики -->
+                <section id="stats-section" class="content-section">
+                    <div class="section-header">
+                        <h2>📈 Использование API</h2>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="api-usage-chart"></canvas>
+                    </div>
+
+                    <div class="section-header">
+                        <h2>📊 Сводная статистика</h2>
+                    </div>
+                    
+                    <div class="stats-cards">
+                        <div class="stat-card">
+                            <h3>Всего ящиков</h3>
+                            <div class="stat-value" id="stats-total-inboxes">-/-</div>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>API запросов</h3>
+                            <div class="stat-value" id="stats-api-requests">-/-</div>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Отправлено писем</h3>
+                            <div class="stat-value" id="stats-sent-emails">-</div>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 70%"></div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Получено писем</h3>
+                            <div class="stat-value" id="stats-received-emails">-</div>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 60%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Секция настроек -->
+                <section id="settings-section" class="content-section">
+                    <div class="section-header">
+                        <h2 data-i18n="settings_title"><i class="fas fa-cog"></i> Настройки</h2>
+                    </div>
+                    
+                    <div class="settings-form">
+                        <div class="settings-group">
+                            <h3 data-i18n="settings_api"><i class="fas fa-key"></i> API ключ</h3>
+                            
+                            <!-- Улучшенный блок для выбора типа API и отображения статуса -->
+                            <div class="api-mode-selector">
+                                <div class="api-mode-label" data-i18n="settings_api_mode_label"><i class="fas fa-exchange-alt"></i> Режим API</div>
+                                <div class="api-mode-toggle">
+                                    <span class="api-mode-option" id="public-api-option" data-i18n="settings_api_mode_public"><i class="fas fa-globe"></i> Публичный</span>
+                                    <label class="api-mode-switch">
+                                        <input type="checkbox" id="api-mode-toggle">
+                                        <span class="api-mode-slider"></span>
+                                    </label>
+                                    <span class="api-mode-option" id="personal-api-option" data-i18n="settings_api_mode_personal"><i class="fas fa-user-lock"></i> Персональный</span>
+                                </div>
+                                
+                                <div class="api-status-indicator">
+                                    <span class="status-dot" id="api-status-dot"></span>
+                                    <span id="api-status-text" data-i18n="settings_api_status_checking">Проверка соединения...</span>
+                                </div>
+                            </div>
+                            
+                            <div class="settings-field api-key-field">
+                                <label for="api-key" data-i18n="settings_api_key_personal"><i class="fas fa-fingerprint"></i> Персональный API ключ:</label>
+                                <div class="api-key-input-group">
+                                    <input type="password" id="api-key" class="text-input" data-i18n-placeholder="settings_api_key_placeholder" placeholder="Введите персональный API ключ...">
+                                    <button class="btn btn-toggle-pwd" id="toggle-api-key-visibility" data-i18n-title="settings_api_key_toggle" title="Показать/скрыть ключ">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="api-key-desc">
+                                    <span id="public-key-note" data-i18n="settings_api_public_note">
+                                        <i class="fas fa-shield-alt"></i> Используется защищенный публичный API ключ
+                                    </span>
+                                    <span id="personal-key-note" style="display: none;" data-i18n="settings_api_personal_note">
+                                        <i class="fas fa-lock"></i> Используется персональный API ключ
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="settings-field">
+                                <button class="btn btn-primary" id="update-api-key-btn" data-i18n="settings_api_update"><i class="fas fa-save"></i> Сохранить ключ</button>
+                                <button class="btn" id="reset-to-public-api-btn" data-i18n="settings_api_reset"><i class="fas fa-undo"></i> Сбросить к публичному API</button>
+                            </div>
+                        </div>
+
+                        <div class="settings-group">
+                            <h3 data-i18n="settings_timeouts"><i class="fas fa-clock"></i> Тайм-ауты</h3>
+                            <div class="settings-field">
+                                <label for="email-wait-timeout" data-i18n="settings_timeout_email"><i class="fas fa-envelope"></i> Ожидание письма (сек):</label>
+                                <input type="number" id="email-wait-timeout" class="number-input" value="30" min="1">
+                            </div>
+                            <div class="settings-field">
+                                <label for="http-timeout" data-i18n="settings_timeout_http"><i class="fas fa-globe"></i> Тайм-аут HTTP запроса (сек):</label>
+                                <input type="number" id="http-timeout" class="number-input" value="10" min="1">
+                            </div>
+                            <button class="btn btn-primary" id="save-timeouts-btn" data-i18n="save"><i class="fas fa-save"></i> Сохранить</button>
+                        </div>
+
+                        <div class="settings-group">
+                            <h3 data-i18n="settings_auto_delete"><i class="fas fa-trash-alt"></i> Автоматическое удаление</h3>
+                            <div class="settings-field checkbox-field">
+                                <input type="checkbox" id="auto-delete-inboxes" checked>
+                                <label for="auto-delete-inboxes" data-i18n="settings_auto_delete_inboxes">Автоматически удалять почтовые ящики после использования</label>
+                            </div>
+                            <div class="settings-field checkbox-field">
+                                <input type="checkbox" id="auto-delete-emails">
+                                <label for="auto-delete-emails" data-i18n="settings_auto_delete_emails">Удалять письма старше:</label>
+                                <input type="number" id="auto-delete-days" class="number-input" value="7" min="1">
+                                <span data-i18n="settings_auto_delete_days">дней</span>
+                            </div>
+                            <div class="settings-field">
+                                <label data-i18n="settings_inbox_timer"><i class="fas fa-hourglass-half"></i> Таймер удаления ящика после просмотра:</label>
+                                <div class="radio-controls">
+                                    <label class="radio-control">
+                                        <input type="radio" name="inbox-delete-timer" value="0" checked>
+                                        <span data-i18n="settings_inbox_timer_never">Не удалять</span>
+                                    </label>
+                                    <label class="radio-control">
+                                        <input type="radio" name="inbox-delete-timer" value="5">
+                                        <span data-i18n="settings_inbox_timer_5min">Через 5 минут</span>
+                                    </label>
+                                    <label class="radio-control">
+                                        <input type="radio" name="inbox-delete-timer" value="60">
+                                        <span data-i18n="settings_inbox_timer_1hour">Через 1 час</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" id="save-auto-delete-btn" data-i18n="save"><i class="fas fa-save"></i> Сохранить</button>
+                        </div>
+
+                        <div class="settings-group">
+                            <h3 data-i18n="settings_logging"><i class="fas fa-file-alt"></i> Журнал операций</h3>
+                            <div class="settings-field checkbox-field">
+                                <input type="checkbox" id="enable-logging" checked>
+                                <label for="enable-logging" data-i18n="settings_logging_enable">Включить журналирование</label>
+                            </div>
+                            <div class="settings-field checkbox-field">
+                                <input type="checkbox" id="save-log-to-file" checked>
+                                <label for="save-log-to-file" data-i18n="settings_logging_save_file">Сохранять журнал в файл</label>
+                            </div>
+                            <div class="settings-field">
+                                <label for="log-file-path" data-i18n="settings_logging_path"><i class="fas fa-folder"></i> Путь к файлу журнала:</label>
+                                <input type="text" id="log-file-path" class="text-input" value="./mailslurp.log">
+                            </div>
+                            <button class="btn btn-primary" id="save-logging-btn" data-i18n="save"><i class="fas fa-save"></i> Сохранить</button>
+                        </div>
+                        
+                        <!-- Новая секция для секретного кода -->
+                        <div class="settings-group secret-code-section">
+                            <h3 data-i18n="settings_secret_code"><i class="fas fa-unlock-alt"></i> Расширенные возможности</h3>
+                            <div class="settings-field">
+                                <label for="secret-code" data-i18n="code_label"><i class="fas fa-key"></i> Секретный код:</label>
+                                <div class="secret-code-input-group">
+                                    <input type="password" id="secret-code" class="text-input" data-i18n-placeholder="settings_secret_code_placeholder" placeholder="Введите секретный код для разблокировки...">
+                                    <button class="btn btn-toggle-code" id="toggle-code-visibility" data-i18n-title="settings_secret_code_toggle" title="Показать/скрыть код">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="secret-code-status" id="secret-code-status">
+                                    <span class="code-inactive" data-i18n="code_status_inactive"><i class="fas fa-times-circle"></i> Код не активирован</span>
+                                    <span class="code-active" style="display: none;" data-i18n="code_status_active"><i class="fas fa-check-circle"></i> Премиум-функции активированы</span>
+                                </div>
+                                <p class="secret-code-desc" data-i18n="settings_secret_code_desc">Введите специальный код для разблокировки расширенных функций, включая сохранение почтовых ящиков при использовании публичного API.</p>
+                            </div>
+                            <button class="btn btn-primary" id="activate-code-btn" data-i18n="code_activate"><i class="fas fa-unlock"></i> Активировать код</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Premium API Key Section -->
+                <section id="premium-section" class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title" data-i18n="premium_title">🔑 Premium API-ключ</h2>
+                    </div>
+                    
+                    <div class="premium-container">
+                        <div class="premium-card">
+                            <div class="premium-header">
+                                <h3 data-i18n="premium_subtitle">Получите персональный доступ к сервису</h3>
+                                <div class="premium-price">
+                                    <span class="price-amount">5 USDT</span>
+                                    <span class="price-period" data-i18n="premium_price_period">/ месяц</span>
+                                </div>
+                            </div>
+                            
+                            <div class="premium-body">
+                                <div class="premium-features">
+                                    <div class="feature">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span data-i18n="premium_feature_1">10 персональных почтовых ящиков</span>
+                                    </div>
+                                    <div class="feature">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span data-i18n="premium_feature_2">Полная конфиденциальность ваших данных</span>
+                                    </div>
+                                    <div class="feature">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span data-i18n="premium_feature_3">Мгновенное получение писем и уведомления</span>
+                                    </div>
+                                    <div class="feature">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span data-i18n="premium_feature_4">Возможность удалять и создавать новые ящики</span>
+                                    </div>
+                                    <div class="feature">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span data-i18n="premium_feature_5">Прием почты со всех популярных сервисов</span>
+                                    </div>
+                                    <div class="feature">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span data-i18n="premium_feature_6">Идеально для кодов регистрации и проверочных ссылок</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="premium-warning">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <p data-i18n="premium_warning">Без Premium-ключа все пользователи делят общий доступ к API, что ограничивает приватность и может привести к потере доступа к вашим ящикам.</p>
+                                </div>
+                                
+                                <div class="premium-contact">
+                                    <h4 data-i18n="premium_contact_title">Как получить персональный API-ключ:</h4>
+                                    <p data-i18n="premium_contact_message">Просто свяжитесь с нами в Telegram:</p>
+                                    <a href="https://t.me/AromaFlow_DoTERRA" class="telegram-button" target="_blank">
+                                        <i class="fab fa-telegram"></i>
+                                        @AromaFlow_DoTERRA
+                                    </a>
+                                    <p class="contact-info" data-i18n="premium_payment_info">Оплата принимается в USDT. После оплаты вы получите ваш персональный API-ключ, который нужно будет ввести в разделе "Настройки".</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="testimonials">
+                            <h3 data-i18n="premium_testimonials_title">Что говорят наши пользователи</h3>
+                            <div class="testimonial">
+                                <div class="testimonial-text">
+                                    "Использую для регистрации на сайтах и получения уведомлений. Персональный ключ дает полную уверенность в безопасности данных."
+                                </div>
+                                <div class="testimonial-author">Алексей К.</div>
+                            </div>
+                            <div class="testimonial">
+                                <div class="testimonial-text">
+                                    "Очень удобно для работы с несколькими проектами одновременно. 10 ящиков более чем достаточно."
+                                </div>
+                                <div class="testimonial-author">Мария С.</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Секция поддержки проекта -->
+                <section id="donate-section" class="content-section">
+                    <div class="section-header">
+                        <h2 data-i18n="donate_title">❤️ Поддержать развитие проекта</h2>
+                        <button id="donate-btn" class="btn btn-primary">
+                            <i class="fas fa-donate"></i> <span data-i18n="donate_button">Сделать пожертвование</span>
+                        </button>
+                    </div>
+                    
+                    <div class="info-panel">
+                        <div class="info-panel-icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <div class="info-panel-content">
+                            <h4 data-i18n="donate_support_title">💖 Ваша поддержка важна для нас!</h4>
+                            <p data-i18n="donate_support_desc">Проект NeuroMail создается и поддерживается энтузиастами. Ваши пожертвования помогают нам:</p>
+                            <div class="feature-list">
+                                <div class="feature-item">
+                                    <i class="fas fa-server"></i>
+                                    <span data-i18n="donate_feature_1">Оплачивать серверную инфраструктуру</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-code"></i>
+                                    <span data-i18n="donate_feature_2">Разрабатывать новые функции</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-lock"></i>
+                                    <span data-i18n="donate_feature_3">Улучшать безопасность и производительность</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-coffee"></i>
+                                    <span data-i18n="donate_feature_4">Поддерживать команду разработчиков</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="donate-options">
+                        <div class="donate-card">
+                            <div class="donate-card-header">
+                                <i class="fab fa-btc"></i>
+                                <h3 data-i18n="donate_crypto">Криптовалюта</h3>
+                            </div>
+                            <div class="donate-card-body">
+                                <p data-i18n="donate_crypto_desc">Поддержите развитие проекта с помощью криптовалюты.</p>
+                                <button id="show-usdt-wallet" class="btn btn-primary">
+                                    <i class="fas fa-wallet"></i> <span data-i18n="donate_show_wallet">Показать кошелек USDT TRC20</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <div class="ad-right">
+            <div class="ad-unit">
+                <div class="ad-label">Партнер</div>
+                <h3>VPN-сервис</h3>
+                <p>Безопасное соединение и доступ к контенту по всему миру</p>
+                <button class="btn btn-primary" style="margin-top: 15px;">Попробовать</button>
+            </div>
+            <div class="ad-unit">
+                <div class="ad-label">Скоро!</div>
+                <h3>NeuroMail Pro</h3>
+                <p>Новые функции и неограниченное количество писем для бизнеса</p>
+                <button class="btn btn-primary" style="margin-top: 15px;">Предзаказ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Мобильный рекламный баннер -->
+    <div class="mobile-ad-banner">
+        <div class="mobile-ad-close"><i class="fas fa-times"></i></div>
+        <p>Используйте VPN-сервис для стабильной работы NeuroMail</p>
+        <button class="btn btn-primary btn-sm">Подробнее</button>
     </div>
 
     <!-- Модальные окна -->
@@ -859,90 +895,22 @@
     </script>
 
     <!-- JS Скрипты -->
-    <script src="js/apiKeyManager.js?v=1743281999999"></script>
     <script src="js/api-key-pool.js?v=1743282000000"></script>
     <script src="js/api-key-updater.js?v=1743282000001"></script>
+    <script src="js/apiKeyManager.js?v=1743281999999"></script>
     <script src="js/api.js?v=1743281999999"></script>
     <script src="js/ui.js?v=1743281999999"></script>
     <script src="js/generator.js?v=1743281999999"></script>
     <script src="js/i18n.js?v=1743281999999"></script>
+    <script src="js/app.js?v=1743281999999"></script>
+    <script src="js/performance-optimizer.js?v=1743282000000"></script>
+
+    <!-- JavaScript для закрытия мобильного баннера -->
     <script>
-        // Проверка инициализации языкового модуля
-        document.addEventListener('DOMContentLoaded', function() {
-            try {
-                if (window.i18n) {
-                    console.log('✅ Модуль i18n успешно загружен');
-                    
-                    // Устанавливаем правильные классы для кнопок языка
-                    const currentLang = window.i18n.currentLang || 'ru';
-                    document.querySelectorAll('.lang-btn').forEach(btn => {
-                        if (btn.getAttribute('data-lang') === currentLang) {
-                            btn.classList.add('active');
-                        } else {
-                            btn.classList.remove('active');
-                        }
-                    });
-                    
-                    // Добавляем прямые обработчики событий для кнопок переключения языка
-                    const ruBtn = document.getElementById('lang-ru');
-                    const enBtn = document.getElementById('lang-en');
-                    
-                    if (ruBtn) {
-                        ruBtn.addEventListener('click', function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            if (window.i18n) {
-                                console.log('Переключаем на русский язык');
-                                window.i18n.setLanguage('ru');
-                            }
-                        });
-                    }
-                    
-                    if (enBtn) {
-                        enBtn.addEventListener('click', function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            if (window.i18n) {
-                                console.log('Переключаем на английский язык');
-                                window.i18n.setLanguage('en');
-                            }
-                        });
-                    }
-                    
-                    // Проверяем, существует ли элемент toast-message
-                    const toast = document.getElementById('toast');
-                    if (toast) {
-                        if (!toast.querySelector('.toast-message')) {
-                            console.log('Создаем элемент toast-message');
-                            const messageEl = document.createElement('div');
-                            messageEl.className = 'toast-message';
-                            messageEl.textContent = 'Уведомление';
-                            toast.appendChild(messageEl);
-                        }
-                    } else {
-                        console.warn('Элемент #toast не найден на странице');
-                    }
-                } else {
-                    console.error('❌ Модуль i18n не загружен');
-                    
-                    // Попытка динамической загрузки
-                    const script = document.createElement('script');
-                    script.src = 'js/i18n.js?v=' + Date.now();
-                    script.onload = function() {
-                        console.log('Модуль i18n загружен динамически');
-                        if (window.i18n) {
-                            window.i18n.initEvents();
-                        }
-                    };
-                    document.head.appendChild(script);
-                }
-            } catch (error) {
-                console.error('Ошибка при инициализации языкового переключателя:', error);
-            }
+        document.querySelector('.mobile-ad-close').addEventListener('click', function() {
+            document.querySelector('.mobile-ad-banner').style.display = 'none';
+            document.querySelector('.app-content').style.paddingBottom = '0';
         });
     </script>
-    <script src="js/app.js?v=1743281999999"></script>
-    <!-- Оптимизация производительности и скроллинга -->
-    <script src="js/performance-optimizer.js?v=1743282000000"></script>
 </body>
 </html> 

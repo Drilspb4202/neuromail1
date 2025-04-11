@@ -1,0 +1,143 @@
+/* Дополнительные стили для NeuroMail */
+
+/* Темы для уведомлений */
+.toastify.toast-info {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+.toastify.toast-success {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+}
+
+.toastify.toast-warning {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+}
+
+.toastify.toast-error {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+/* Улучшенные стили для копирования email адреса */
+.copy-email {
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.copy-email:hover {
+    color: #3498db;
+}
+
+.copy-email.copied {
+    color: #2ecc71;
+}
+
+.copy-email.copied::after {
+    content: "✓ Скопировано";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(46, 204, 113, 0.9);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    animation: fadeInOut 2s forwards;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translate(-50%, 10px); }
+    20% { opacity: 1; transform: translate(-50%, 0); }
+    80% { opacity: 1; transform: translate(-50%, 0); }
+    100% { opacity: 0; transform: translate(-50%, -10px); }
+}
+
+/* Стили для отображения вложений в письме */
+.email-attachments {
+    margin-top: 25px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 15px;
+}
+
+.attachments-header {
+    color: #fff;
+    font-size: 16px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.attachments-header i {
+    margin-right: 8px;
+    color: #3498db;
+}
+
+.attachments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.attachment-item {
+    display: flex;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    padding: 10px 15px;
+    transition: background-color 0.2s ease;
+}
+
+.attachment-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.attachment-icon {
+    font-size: 20px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #3498db;
+    margin-right: 12px;
+}
+
+.attachment-info {
+    flex: 1;
+}
+
+.attachment-name {
+    font-weight: 500;
+    color: #fff;
+    margin-bottom: 2px;
+    word-break: break-word;
+}
+
+.attachment-meta {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.attachment-actions {
+    margin-left: 10px;
+}
+
+.btn-download {
+    background-color: #2980b9;
+    color: white;
+    border-radius: 4px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.btn-download:hover {
+    background-color: #3498db;
+} 

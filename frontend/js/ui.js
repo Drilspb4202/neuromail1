@@ -338,6 +338,9 @@ class MailSlurpUI {
         viewEmailsBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const inboxId = e.target.closest('tr').dataset.inboxId;
+                // Сначала активируем вкладку с письмами
+                this.activateTab('emails-section');
+                // Затем вызываем обработчик для загрузки писем
                 this.onViewEmails(inboxId);
             });
         });
@@ -410,65 +413,153 @@ class MailSlurpUI {
     }
     
     /**
-     * Отобразить список писем
-     * @param {Array} emails - Список писем
+     * Отрисовать список писем
+     * @param {Array} emails - Массив писем
+     * @param {string} inboxId - ID текущего почтового ящика
+     * @param {string} inboxEmail - Email адрес ящика
      */
-    renderEmails(emails) {
-        if (!emails || emails.length === 0) {
-            this.emailsList.innerHTML = `
-                <tr class="loading-placeholder">
-                    <td colspan="4">Писем не найдено</td>
-                </tr>
-            `;
+    renderEmails(emails, inboxId, inboxEmail) {
+        const emailsList = document.getElementById('emails-list');
+        
+        if (!emailsList) {
+            console.error('Не найден элемент для отображения списка писем');
             return;
         }
         
-        let html = '';
-        emails.forEach(email => {
-            const createdDate = new Date(email.createdAt);
-            const formattedDate = `${createdDate.toLocaleDateString()} ${createdDate.toLocaleTimeString()}`;
+        // Очищаем содержимое
+        emailsList.innerHTML = '';
+        
+        // Обновляем заголовок с текущим ящиком
+        const inboxTitle = document.getElementById('current-inbox-title');
+        if (inboxTitle) {
+            inboxTitle.innerHTML = `📧 Письма - <span class="current-inbox-email">${inboxEmail || ''}</span>`;
+        }
+        
+        // Если писем нет, показываем соответствующее сообщение
+        if (!emails || emails.length === 0) {
+            const tr = document.createElement('tr');
+            tr.className = 'empty-inbox';
             
-            html += `
-                <tr data-email-id="${email.id}">
-                    <td>${email.from || '-'}</td>
-                    <td>${email.subject || '(Без темы)'}</td>
-                    <td>${formattedDate}</td>
-                    <td>
-                        <button class="btn btn-icon view-email-btn" title="Просмотреть письмо">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="btn btn-icon delete-email-btn" title="Удалить письмо">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-            `;
+            const td = document.createElement('td');
+            td.setAttribute('colspan', '4');
+            td.textContent = 'В этом ящике пока нет писем';
+            td.setAttribute('data-i18n', 'emails_empty');
+            
+            tr.appendChild(td);
+            emailsList.appendChild(tr);
+            return;
+        }
+        
+        // Отображаем каждое письмо
+        emails.forEach(email => {
+            // Пропускаем письма без ID или отправителя
+            if (!email.id) return;
+            
+            const tr = document.createElement('tr');
+            tr.className = 'email-item';
+            tr.setAttribute('data-email-id', email.id);
+            
+            // Если письмо не было прочитано, добавляем класс
+            if (!email.read) {
+                tr.classList.add('unread');
+            }
+            
+            // Отправитель
+            const tdFrom = document.createElement('td');
+            tdFrom.className = 'email-sender';
+            tdFrom.textContent = this.formatSender(email.from);
+            tr.appendChild(tdFrom);
+            
+            // Тема
+            const tdSubject = document.createElement('td');
+            tdSubject.className = 'email-subject';
+            tdSubject.textContent = email.subject || '(без темы)';
+            tr.appendChild(tdSubject);
+            
+            // Дата получения
+            const tdDate = document.createElement('td');
+            tdDate.className = 'email-date';
+            tdDate.textContent = this.formatDate(email.createdAt);
+            tr.appendChild(tdDate);
+            
+            // Действия
+            const tdActions = document.createElement('td');
+            tdActions.className = 'action-buttons';
+            
+            // Кнопка просмотра
+            const viewBtn = document.createElement('button');
+            viewBtn.className = 'btn btn-icon view-email-btn clickable-element';
+            viewBtn.setAttribute('title', 'Просмотреть письмо');
+            viewBtn.setAttribute('data-email-id', email.id);
+            
+            const viewIcon = document.createElement('i');
+            viewIcon.className = 'fas fa-eye';
+            viewBtn.appendChild(viewIcon);
+            
+            // Кнопка удаления
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'btn btn-icon delete-email-btn clickable-element';
+            deleteBtn.setAttribute('title', 'Удалить письмо');
+            deleteBtn.setAttribute('data-email-id', email.id);
+            
+            const deleteIcon = document.createElement('i');
+            deleteIcon.className = 'fas fa-trash-alt';
+            deleteBtn.appendChild(deleteIcon);
+            
+            tdActions.appendChild(viewBtn);
+            tdActions.appendChild(deleteBtn);
+            tr.appendChild(tdActions);
+            
+            // Добавляем письмо в список
+            emailsList.appendChild(tr);
         });
         
-        this.emailsList.innerHTML = html;
-        
-        // Добавляем обработчики событий для кнопок
-        this.addEmailActionHandlers();
+        // Добавляем обработчики событий для новых элементов
+        this.addEmailEventListeners();
     }
     
     /**
-     * Добавить обработчики событий для кнопок в списке писем
+     * Добавить обработчики событий для элементов списка писем
      */
-    addEmailActionHandlers() {
-        const viewEmailBtns = document.querySelectorAll('.view-email-btn');
-        const deleteEmailBtns = document.querySelectorAll('.delete-email-btn');
-        
-        viewEmailBtns.forEach(btn => {
+    addEmailEventListeners() {
+        // Обработчики для кнопок просмотра писем
+        document.querySelectorAll('.view-email-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const emailId = e.target.closest('tr').dataset.emailId;
-                this.onViewEmail(emailId);
+                const emailId = e.currentTarget.getAttribute('data-email-id');
+                if (emailId) {
+                    document.dispatchEvent(new CustomEvent('viewEmail', {
+                        detail: { emailId }
+                    }));
+                }
             });
         });
         
-        deleteEmailBtns.forEach(btn => {
+        // Обработчики для кнопок удаления писем
+        document.querySelectorAll('.delete-email-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const emailId = e.target.closest('tr').dataset.emailId;
-                this.confirmDeleteEmail(emailId);
+                const emailId = e.currentTarget.getAttribute('data-email-id');
+                if (emailId) {
+                    if (confirm('Вы действительно хотите удалить это письмо?')) {
+                        document.dispatchEvent(new CustomEvent('deleteEmail', {
+                            detail: { emailId }
+                        }));
+                    }
+                }
+            });
+        });
+        
+        // Обработчики клика по строке письма (открытие письма)
+        document.querySelectorAll('.email-item').forEach(row => {
+            row.addEventListener('click', (e) => {
+                // Проверяем, что клик не был по кнопкам
+                if (!e.target.closest('.btn')) {
+                    const emailId = row.getAttribute('data-email-id');
+                    if (emailId) {
+                        document.dispatchEvent(new CustomEvent('viewEmail', {
+                            detail: { emailId }
+                        }));
+                    }
+                }
             });
         });
     }
@@ -709,8 +800,134 @@ class MailSlurpUI {
             emailBody.appendChild(container);
         }
         
+        // Добавляем отображение вложений, если они есть
+        if (email.attachments && email.attachments.length > 0) {
+            // Создаем секцию для вложений
+            const attachmentsSection = document.createElement('div');
+            attachmentsSection.className = 'email-attachments';
+            attachmentsSection.innerHTML = `
+                <h4 class="attachments-header">
+                    <i class="fas fa-paperclip"></i> Вложения (${email.attachments.length})
+                </h4>
+                <div class="attachments-list"></div>
+            `;
+            
+            const attachmentsList = attachmentsSection.querySelector('.attachments-list');
+            
+            // Добавляем каждое вложение в список
+            email.attachments.forEach(attachment => {
+                const attachmentItem = document.createElement('div');
+                attachmentItem.className = 'attachment-item';
+                
+                // Определяем иконку в зависимости от типа файла
+                let fileIcon = 'file';
+                if (attachment.contentType) {
+                    if (attachment.contentType.includes('image')) {
+                        fileIcon = 'file-image';
+                    } else if (attachment.contentType.includes('pdf')) {
+                        fileIcon = 'file-pdf';
+                    } else if (attachment.contentType.includes('word') || attachment.contentType.includes('document')) {
+                        fileIcon = 'file-word';
+                    } else if (attachment.contentType.includes('excel') || attachment.contentType.includes('spreadsheet')) {
+                        fileIcon = 'file-excel';
+                    } else if (attachment.contentType.includes('zip') || attachment.contentType.includes('archive')) {
+                        fileIcon = 'file-archive';
+                    } else if (attachment.contentType.includes('text')) {
+                        fileIcon = 'file-alt';
+                    }
+                }
+                
+                // Форматируем размер файла
+                const fileSize = attachment.sizeBytes ? this.formatFileSize(attachment.sizeBytes) : 'Неизвестно';
+                
+                // Создаем элемент вложения
+                attachmentItem.innerHTML = `
+                    <div class="attachment-icon">
+                        <i class="fas fa-${fileIcon}"></i>
+                    </div>
+                    <div class="attachment-info">
+                        <div class="attachment-name">${attachment.name || 'Вложение'}</div>
+                        <div class="attachment-meta">
+                            ${attachment.contentType || 'application/octet-stream'} • ${fileSize}
+                        </div>
+                    </div>
+                    <div class="attachment-actions">
+                        <a href="${attachment.downloadUrl}" class="btn-download" download="${attachment.name || 'attachment'}" target="_blank">
+                            <i class="fas fa-download"></i>
+                        </a>
+                    </div>
+                `;
+                
+                // Добавляем обработчик для скачивания через JavaScript, если требуется
+                const downloadBtn = attachmentItem.querySelector('.btn-download');
+                downloadBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.downloadAttachment(attachment);
+                });
+                
+                attachmentsList.appendChild(attachmentItem);
+            });
+            
+            // Добавляем секцию вложений в тело письма
+            emailBody.appendChild(attachmentsSection);
+        }
+        
         // Показываем просмотр письма
         document.getElementById('email-viewer').classList.add('active');
+    }
+    
+    /**
+     * Форматирует размер файла в человекочитаемом виде
+     * @param {number} bytes - Размер в байтах
+     * @returns {string} - Отформатированный размер
+     */
+    formatFileSize(bytes) {
+        if (bytes === 0) return '0 Байт';
+        
+        const k = 1024;
+        const sizes = ['Байт', 'КБ', 'МБ', 'ГБ', 'ТБ'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    /**
+     * Скачивает вложение через API
+     * @param {Object} attachment - Объект вложения
+     */
+    downloadAttachment(attachment) {
+        if (!this.app || !this.app.api) {
+            this.showToast('Невозможно скачать вложение: API не инициализирован', 'error');
+            return;
+        }
+        
+        // Показываем уведомление о начале скачивания
+        this.showToast(`Скачивание файла: ${attachment.name || 'Вложение'}...`, 'info');
+        
+        // Получаем вложение через API
+        this.app.api.downloadAttachment(attachment.id)
+            .then(blob => {
+                // Создаем ссылку для скачивания
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = attachment.name || 'attachment';
+                
+                // Добавляем ссылку в DOM и эмулируем клик
+                document.body.appendChild(a);
+                a.click();
+                
+                // Очищаем ресурсы
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                this.showToast(`Файл ${attachment.name || 'Вложение'} успешно скачан`, 'success');
+            })
+            .catch(error => {
+                console.error('Ошибка при скачивании вложения:', error);
+                this.showToast(`Ошибка при скачивании вложения: ${error.message}`, 'error');
+            });
     }
     
     /**
@@ -731,22 +948,6 @@ class MailSlurpUI {
         // Устанавливаем callback для кнопки подтверждения
         this.confirmDeleteBtn.onclick = () => {
             this.onDeleteInbox(inboxId);
-            this.closeModal(this.deleteConfirmModal);
-        };
-        
-        this.openModal(this.deleteConfirmModal);
-    }
-    
-    /**
-     * Подтвердить удаление письма
-     * @param {string} emailId - ID письма
-     */
-    confirmDeleteEmail(emailId) {
-        this.deleteConfirmText.textContent = `Вы уверены, что хотите удалить это письмо?`;
-        
-        // Устанавливаем callback для кнопки подтверждения
-        this.confirmDeleteBtn.onclick = () => {
-            this.onDeleteEmail(emailId);
             this.closeModal(this.deleteConfirmModal);
         };
         
@@ -1517,6 +1718,144 @@ class MailSlurpUI {
         const loadingRow = this.emailsList.querySelector('.loading-placeholder');
         if (loadingRow) {
             loadingRow.remove();
+        }
+    }
+
+    /**
+     * Показать индикатор загрузки для указанного контейнера
+     * @param {string} containerId - ID контейнера
+     * @param {string} message - Сообщение для отображения
+     */
+    showLoading(containerId, message = 'Загрузка...') {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        // Для таблиц
+        if (container.tagName === 'TBODY') {
+            container.innerHTML = `
+                <tr class="loading-placeholder">
+                    <td colspan="4">${message}</td>
+                </tr>
+            `;
+        } else {
+            // Сохраняем оригинальное содержимое
+            container._originalContent = container.innerHTML;
+            
+            // Заменяем содержимое на индикатор загрузки
+            container.innerHTML = `
+                <div class="loading-indicator">
+                    <div class="spinner"></div>
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+    }
+
+    /**
+     * Показать сообщение об ошибке в указанном контейнере
+     * @param {string} containerId - ID контейнера
+     * @param {string} message - Сообщение об ошибке
+     * @param {Error} error - Объект ошибки
+     */
+    showErrorMessage(containerId, message = 'Произошла ошибка', error = null) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        // Логируем ошибку для отладки
+        if (error) {
+            console.error(message, error);
+        }
+        
+        // Для таблиц
+        if (container.tagName === 'TBODY') {
+            container.innerHTML = `
+                <tr class="error-message">
+                    <td colspan="4">
+                        <div class="error-container">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>${message}</span>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        } else {
+            container.innerHTML = `
+                <div class="error-container">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>${message}</span>
+                    ${error ? `<small>${error.message}</small>` : ''}
+                </div>
+            `;
+        }
+        
+        // Показываем уведомление
+        this.showToast(message, 'error');
+    }
+
+    /**
+     * Отформатировать строку отправителя
+     * @param {string} sender - Строка с адресом отправителя
+     * @returns {string} - Отформатированный отправитель
+     */
+    formatSender(sender) {
+        if (!sender) return 'Неизвестный отправитель';
+        
+        // Проверяем, содержит ли строка имя и email в формате "Name <email@example.com>"
+        const matches = sender.match(/^([^<]+)<([^>]+)>$/);
+        if (matches && matches.length >= 3) {
+            const name = matches[1].trim();
+            const email = matches[2].trim();
+            return name || email;
+        }
+        
+        return sender;
+    }
+
+    /**
+     * Отформатировать дату для отображения
+     * @param {string|Date} dateString - Дата в виде строки или объекта Date
+     * @returns {string} - Отформатированная дата
+     */
+    formatDate(dateString) {
+        if (!dateString) return '';
+        
+        try {
+            const date = new Date(dateString);
+            
+            // Проверка на валидность даты
+            if (isNaN(date.getTime())) {
+                return 'Недавно';
+            }
+            
+            // Определяем, нужно ли показывать полную дату или относительное время
+            const now = new Date();
+            const diff = now - date;
+            const diffMinutes = Math.floor(diff / (1000 * 60));
+            const diffHours = Math.floor(diff / (1000 * 60 * 60));
+            const diffDays = Math.floor(diff / (1000 * 60 * 60 * 24));
+            
+            // Форматируем время
+            if (diffMinutes < 1) {
+                return 'Только что';
+            } else if (diffMinutes < 60) {
+                return `${diffMinutes} мин. назад`;
+            } else if (diffHours < 24) {
+                return `${diffHours} ч. назад`;
+            } else if (diffDays < 7) {
+                return `${diffDays} дн. назад`;
+            } else {
+                // Форматируем полную дату
+                return date.toLocaleString('ru-RU', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+        } catch (e) {
+            console.error('Ошибка форматирования даты:', e);
+            return dateString || '';
         }
     }
 }

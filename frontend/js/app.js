@@ -257,67 +257,63 @@ class MailSlurpApp {
      * Создать новый почтовый ящик
      */
     async createInbox() {
-        // Проверяем, не идет ли уже процесс создания
-        if (this.isCreatingInbox) {
-            return;
-        }
-
         try {
-            this.isCreatingInbox = true;
-            
-            // Блокируем кнопку
-            const confirmBtn = document.getElementById('confirm-create-inbox');
-            confirmBtn.disabled = true;
-            confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Создание...';
-            
-            // Создаем пустой объект опций - без названия и описания
-            const options = {};
-            
-            // Создаем новый ящик
-            const newInbox = await this.api.createInbox(options);
-            
-            this.ui.closeModal(this.ui.createInboxModal);
-            
-            // Показываем информацию о времени жизни ящика при публичном API
-            const isPublicApi = !this.api.usePersonalApi;
-            this.showInboxLifetimeInfo(isPublicApi);
-            
-            // Сохраняем ID и Email нового ящика в localStorage
-            this.currentInboxId = newInbox.id;
-            this.currentInboxEmail = newInbox.emailAddress;
-            localStorage.setItem('current_inbox_id', newInbox.id);
-            localStorage.setItem('current_inbox_email', newInbox.emailAddress);
-            
-            // Добавляем новый ящик в список и обновляем отображение
-            if (this.inboxes && Array.isArray(this.inboxes)) {
-                this.inboxes.unshift(newInbox); // Добавляем в начало списка
-                
-                // Получаем лимит из localStorage или используем дефолтное значение
-                const inboxLimit = parseInt(localStorage.getItem('mailslurp_inbox_limit') || '10');
-                
-                // Обновляем отображение
-                this.renderInboxes(this.inboxes, inboxLimit);
-                
-                // Загружаем письма для нового ящика
-                this.loadEmails(newInbox.id);
-            } else {
-                // Если список еще не загружен, загружаем его полностью
-                await this.loadInboxes();
-                
-                // Загружаем письма для нового ящика
-                this.loadEmails(newInbox.id);
+            if (this.isCreatingInbox) {
+                console.log('Создание почтового ящика уже в процессе, ожидаем завершения...');
+                return;
             }
             
-            this.ui.showToast('Почтовый ящик успешно создан', 'success');
+            this.isCreatingInbox = true;
+            this.ui.showToast('Создаем новый почтовый ящик...', 'info');
+            
+            const inbox = await this.api.createInbox();
+            
+            // Проверяем, что ответ является объектом с id (успешное создание)
+            if (inbox && inbox.id) {
+                console.log('Ящик успешно создан:', inbox);
+                
+                // Получаем текущий список ящиков и добавляем новый в начало
+                const inboxes = await this.loadInboxes();
+                
+                // Находим новый ящик в списке и добавляем класс для анимации
+                setTimeout(() => {
+                    const newInboxRow = document.querySelector(`tr[data-inbox-id="${inbox.id}"]`);
+                    if (newInboxRow) {
+                        newInboxRow.classList.add('new-item');
+                        
+                        // Прокручиваем к новому ящику если он не в области видимости
+                        newInboxRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        
+                        // Удаляем класс через 3 секунды
+                        setTimeout(() => {
+                            newInboxRow.classList.remove('new-item');
+                        }, 3000);
+                    }
+                }, 300);
+                
+                this.ui.showToast(`Почтовый ящик ${inbox.emailAddress} успешно создан`, 'success');
+                
+                // Показываем информацию о времени жизни ящика
+                this.showInboxLifetimeInfo(this.api.isPersonalKey());
+                
+                // Если создан первый ящик, активируем секцию писем
+                if (this.inboxes.length === 1) {
+                    this.currentInboxId = inbox.id;
+                    this.currentInboxEmail = inbox.emailAddress;
+                    localStorage.setItem('current_inbox_id', this.currentInboxId);
+                    localStorage.setItem('current_inbox_email', this.currentInboxEmail);
+                    
+                    // Загружаем письма для нового ящика
+                    await this.loadEmails(this.currentInboxId);
+                }
+            } else {
+                this.ui.showToast(`Ошибка создания ящика: Не удалось создать ящик`, 'error');
+            }
         } catch (error) {
             console.error('Ошибка при создании почтового ящика:', error);
-            this.ui.showToast(`Ошибка: ${error.message}`, 'error');
+            this.ui.showToast(`Ошибка создания ящика: ${error.message}`, 'error');
         } finally {
-            // Восстанавливаем кнопку и снимаем флаг
             this.isCreatingInbox = false;
-            const confirmBtn = document.getElementById('confirm-create-inbox');
-            confirmBtn.disabled = false;
-            confirmBtn.innerHTML = 'Создать';
         }
     }
     
@@ -360,100 +356,89 @@ class MailSlurpApp {
     }
     
     /**
-     * Загрузить письма для выбранного ящика
+     * Загрузить письма для указанного почтового ящика
      * @param {string} inboxId - ID почтового ящика
      */
     async loadEmails(inboxId) {
         try {
-            this.ui.showEmailsLoading();
+            // Сохраняем текущий ID ящика
+            this.currentInboxId = inboxId;
+            localStorage.setItem('current_inbox_id', inboxId);
             
-            // Находим информацию о ящике
+            // Находим и сохраняем email адрес текущего ящика
             const inbox = this.inboxes.find(inbox => inbox.id === inboxId);
-            if (!inbox) {
-                // Если ящик не найден в локальном списке, попробуем запросить его напрямую с сервера
-                try {
-                    const inboxData = await this.api.getInbox(inboxId);
-                    if (inboxData && inboxData.id) {
-                        // Успешно получили ящик - продолжаем загрузку писем
-                        this.currentInboxId = inboxId;
-                        this.currentInboxEmail = inboxData.emailAddress;
-                        localStorage.setItem('current_inbox_id', inboxId);
-                        localStorage.setItem('current_inbox_email', inboxData.emailAddress);
-                        
-                        // Продолжаем загрузку писем для найденного ящика
-                        const emails = await this.api.getEmails(inboxId);
-                        this.emails[inboxId] = emails;
-                        this.ui.renderEmails(emails);
-                        this.resetUnreadCount();
-                        this.checkInboxDeleteTimer();
-                        
-                        // Обновляем заголовок
-                        this.ui.currentInboxTitle.textContent = `📧 Письма (${inboxData.emailAddress})`;
-                        this.ui.showInboxActions(inboxData);
-                        
-                        return;
-                    }
-                } catch (innerError) {
-                    console.error('Ящик не найден на сервере:', innerError);
-                    // Ящик не существует на сервере - очищаем данные
-                    localStorage.removeItem('current_inbox_id');
-                    localStorage.removeItem('current_inbox_email');
-                    this.currentInboxId = null;
-                    this.currentInboxEmail = null;
-                    
-                    // Показываем сообщение об ошибке
-                    this.ui.hideEmailsLoading();
-                    this.ui.emailsList.innerHTML = `
-                        <tr class="no-inbox-selected">
-                            <td colspan="4">Выбранный почтовый ящик не найден или был удален автоматически</td>
-                        </tr>
-                    `;
-                    this.ui.currentInboxTitle.textContent = '📧 Письма';
-                    
-                    this.ui.showToast('Почтовый ящик не найден. Возможно, он был автоматически удален или срок его жизни истек.', 'error');
-                    
-                    // Обновляем список ящиков
-                    this.loadInboxes();
-                    
-                    return; 
-                }
-                
-                throw new Error('Почтовый ящик не найден');
+            if (inbox) {
+                this.currentInboxEmail = inbox.emailAddress;
+                console.log('Текущий email адрес:', this.currentInboxEmail);
             }
             
-            // Сохраняем ID и email текущего ящика
-            this.currentInboxId = inboxId;
-            this.currentInboxEmail = inbox.emailAddress;
+            // Показываем индикатор загрузки
+            this.ui.showLoading('emails-list', 'Загрузка писем...');
             
-            // Сохраняем ID и email текущего ящика в localStorage
-            localStorage.setItem('current_inbox_id', inboxId);
-            localStorage.setItem('current_inbox_email', inbox.emailAddress);
+            // Запрашиваем письма из API
+            const response = await this.api.getEmails(inboxId);
             
-            // Обновляем заголовок и адрес текущего ящика
-            this.ui.currentInboxTitle.textContent = `📧 Письма (${inbox.emailAddress})`;
+            // Обработка ответа в зависимости от его формата
+            let emails = [];
+            if (response.content && Array.isArray(response.content)) {
+                emails = response.content;
+            } else if (Array.isArray(response)) {
+                emails = response;
+            } else {
+                console.warn('Неизвестный формат ответа при получении писем:', response);
+            }
             
-            // Показываем информацию о ящике и доступных действиях
-            this.ui.showInboxActions(inbox);
-            
-            // Загружаем письма для ящика
-            const emails = await this.api.getEmails(inboxId);
-            
-            // Сохраняем письма в кэш
+            // Сохраняем в кэш
             this.emails[inboxId] = emails;
             
             // Отображаем письма
-            this.ui.renderEmails(emails);
+            this.ui.renderEmails(emails, inboxId, this.currentInboxEmail);
             
-            // Сбрасываем счетчик непрочитанных писем
-            this.resetUnreadCount();
+            // Обработка событий для новых элементов писем
+            this.setupEmailEventHandlers();
             
-            // Проверяем и обновляем таймер удаления ящика при необходимости
-            this.checkInboxDeleteTimer();
+            // Обновляем статистику писем
+            this.updateEmailStats();
+            
+            // Логируем результат
+            console.log(`Загружено ${emails.length} писем для ящика ${inboxId}`);
+            
+            return emails;
         } catch (error) {
             console.error('Ошибка при загрузке писем:', error);
-            this.ui.showToast(`Ошибка: ${error.message}`, 'error');
-            this.ui.hideEmailsLoading();
+            this.ui.showErrorMessage('emails-list', 'Не удалось загрузить письма', error);
+            throw error;
         }
+    }
+    
+    /**
+     * Настроить обработчики событий для элементов писем
+     */
+    setupEmailEventHandlers() {
+        // Сначала удаляем предыдущие обработчики, чтобы избежать дублирования
+        document.removeEventListener('viewEmail', this.viewEmailHandler);
+        document.removeEventListener('deleteEmail', this.deleteEmailHandler);
+        
+        // Создаем обработчики и сохраняем ссылки на них для возможности удаления
+        this.viewEmailHandler = (e) => {
+            const { emailId } = e.detail;
+            if (emailId) {
+                console.log('События просмотра письма:', emailId);
+                this.viewEmail(emailId);
+            }
+        };
+        
+        this.deleteEmailHandler = (e) => {
+            const { emailId } = e.detail;
+            if (emailId) {
+                console.log('События удаления письма:', emailId);
+                this.deleteEmail(emailId);
+            }
+        };
+        
+        // Добавляем обработчики без опции once: true
+        document.addEventListener('viewEmail', this.viewEmailHandler);
+        document.addEventListener('deleteEmail', this.deleteEmailHandler);
     }
     
     /**
@@ -2155,11 +2140,84 @@ class MailSlurpApp {
         // Функция больше не нужна, так как прелоадер удален из HTML
         return;
     }
+
+    /**
+     * Отформатировать строку отправителя
+     * @param {string} sender - Строка с адресом отправителя
+     * @returns {string} - Отформатированный отправитель
+     */
+    formatSender(sender) {
+        if (!sender) return 'Неизвестный отправитель';
+        
+        // Проверяем, содержит ли строка имя и email в формате "Name <email@example.com>"
+        const matches = sender.match(/^([^<]+)<([^>]+)>$/);
+        if (matches && matches.length >= 3) {
+            const name = matches[1].trim();
+            const email = matches[2].trim();
+            return name || email;
+        }
+        
+        return sender;
+    }
+
+    /**
+     * Отформатировать дату для отображения
+     * @param {string|Date} dateString - Дата в виде строки или объекта Date
+     * @returns {string} - Отформатированная дата
+     */
+    formatDate(dateString) {
+        if (!dateString) return '';
+        
+        try {
+            const date = new Date(dateString);
+            
+            // Проверка на валидность даты
+            if (isNaN(date.getTime())) {
+                return 'Недавно';
+            }
+            
+            // Определяем, нужно ли показывать полную дату или относительное время
+            const now = new Date();
+            const diff = now - date;
+            const diffMinutes = Math.floor(diff / (1000 * 60));
+            const diffHours = Math.floor(diff / (1000 * 60 * 60));
+            const diffDays = Math.floor(diff / (1000 * 60 * 60 * 24));
+            
+            // Форматируем время
+            if (diffMinutes < 1) {
+                return 'Только что';
+            } else if (diffMinutes < 60) {
+                return `${diffMinutes} мин. назад`;
+            } else if (diffHours < 24) {
+                return `${diffHours} ч. назад`;
+            } else if (diffDays < 7) {
+                return `${diffDays} дн. назад`;
+            } else {
+                // Форматируем полную дату
+                return date.toLocaleString('ru-RU', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+        } catch (e) {
+            console.error('Ошибка форматирования даты:', e);
+            return dateString || '';
+        }
+    }
 }
 
 // Инициализация компонентов приложения
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🚀 DOM полностью загружен, инициализируем приложение');
+    
+    // Инициализируем языковые переключатели
+    initLanguageSwitchers();
+    
+    // Инициализируем рекламные блоки
+    initializeAdComponents();
     
     // Инициализируем API клиент
     const mailslurpApi = new MailSlurpApi();
@@ -2200,4 +2258,364 @@ document.addEventListener('DOMContentLoaded', () => {
             preloader.classList.add('hidden');
         }
     });
-}); 
+});
+
+/**
+ * Создает и возвращает экземпляр UI
+ * @returns {MailSlurpUI} - Экземпляр UI
+ */
+function createMailslurpUI() {
+    console.log('Создание UI компонента...');
+    return new MailSlurpUI();
+}
+
+/**
+ * Инициализация языковых переключателей
+ */
+function initLanguageSwitchers() {
+    try {
+        if (window.i18n) {
+            console.log('✅ Модуль i18n успешно загружен');
+            
+            // Устанавливаем правильные классы для кнопок языка
+            const currentLang = window.i18n.currentLang || 'ru';
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                if (btn.getAttribute('data-lang') === currentLang) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            // Добавляем прямые обработчики событий для кнопок переключения языка
+            const ruBtn = document.getElementById('lang-ru');
+            const enBtn = document.getElementById('lang-en');
+            
+            if (ruBtn) {
+                ruBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (window.i18n) {
+                        console.log('Переключаем на русский язык');
+                        window.i18n.setLanguage('ru');
+                    }
+                });
+            }
+            
+            if (enBtn) {
+                enBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (window.i18n) {
+                        console.log('Переключаем на английский язык');
+                        window.i18n.setLanguage('en');
+                    }
+                });
+            }
+        } else {
+            console.error('❌ Модуль i18n не загружен');
+            
+            // Попытка динамической загрузки
+            const script = document.createElement('script');
+            script.src = 'js/i18n.js?v=' + Date.now();
+            script.onload = function() {
+                console.log('Модуль i18n загружен динамически');
+                if (window.i18n) {
+                    window.i18n.initEvents();
+                }
+            };
+            document.head.appendChild(script);
+        }
+    } catch (error) {
+        console.error('Ошибка при инициализации языкового переключателя:', error);
+    }
+}
+
+/**
+ * Инициализация и управление рекламными блоками
+ */
+function initializeAdComponents() {
+    console.log('Initializing ad components');
+    
+    // Восстанавливаем прокрутку для основного контента
+    const appContent = document.querySelector('.app-content');
+    if (appContent) {
+        // Убеждаемся, что контент имеет прокрутку
+        appContent.style.overflowY = 'auto';
+        
+        // Обработчик для фиксации максимальной высоты контента
+        function updateContentHeight() {
+            const headerHeight = document.querySelector('.app-header')?.offsetHeight || 0;
+            const navHeight = document.querySelector('.app-nav')?.offsetHeight || 0;
+            const langSwitcherHeight = document.querySelector('.language-switcher')?.offsetHeight || 0;
+            
+            const totalHeaderHeight = headerHeight + navHeight + langSwitcherHeight;
+            appContent.style.maxHeight = `calc(100vh - ${totalHeaderHeight + 20}px)`;
+            
+            // Форсируем перерисовку для фиксации скролла
+            appContent.style.display = 'none';
+            setTimeout(() => {
+                appContent.style.display = '';
+            }, 0);
+        }
+        
+        // Обновляем высоту при загрузке и изменении размера
+        updateContentHeight();
+        window.addEventListener('resize', updateContentHeight);
+    }
+    
+    // Исправляем работу навигационных элементов
+    fixNavigationItems();
+    
+    // Функционал для рекламных блоков по бокам
+    const adButtons = document.querySelectorAll('.ad-unit .btn');
+    adButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            const adUnit = e.target.closest('.ad-unit');
+            const adTitle = adUnit ? adUnit.querySelector('h3').textContent : 'Unknown';
+            console.log(`Ad clicked: ${adTitle}`);
+            
+            // Здесь можно добавить логику для аналитики кликов по рекламе
+            if (typeof gtag === 'function') {
+                gtag('event', 'ad_click', {
+                    'ad_title': adTitle,
+                    'click_type': 'button'
+                });
+            }
+            
+            // Пример переадресации в зависимости от заголовка рекламы
+            if (adTitle === 'Премиум-доступ') {
+                document.querySelector('[data-target="premium-section"]').click();
+            } else if (adTitle === 'VPN-сервис') {
+                window.open('https://example.com/vpn', '_blank');
+            } else if (adTitle === 'NeuroMail Pro') {
+                document.querySelector('[data-target="premium-section"]').click();
+            } else if (adTitle === 'Защита Данных') {
+                window.open('https://example.com/security', '_blank');
+            }
+        });
+    });
+    
+    // Мобильный баннер
+    const mobileAdBanner = document.querySelector('.mobile-ad-banner');
+    if (mobileAdBanner) {
+        const mobileAdClose = document.querySelector('.mobile-ad-close');
+        const mobileAdButton = document.querySelector('.mobile-ad-banner .btn');
+        
+        // Показываем мобильный баннер только на мобильных устройствах
+        if (window.innerWidth <= 1000) {
+            setTimeout(() => {
+                mobileAdBanner.style.display = 'block';
+            }, 3000); // Показываем баннер через 3 секунды после загрузки
+        }
+        
+        if (mobileAdClose) {
+            mobileAdClose.addEventListener('click', () => {
+                mobileAdBanner.style.display = 'none';
+                if (appContent) {
+                    appContent.style.paddingBottom = '0';
+                }
+                
+                // Сохраняем в localStorage информацию о том, что баннер был закрыт
+                localStorage.setItem('mobile_ad_closed', Date.now());
+            });
+        }
+        
+        if (mobileAdButton) {
+            mobileAdButton.addEventListener('click', () => {
+                window.open('https://example.com/vpn', '_blank');
+                
+                // Аналитика
+                if (typeof gtag === 'function') {
+                    gtag('event', 'ad_click', {
+                        'ad_title': 'Mobile VPN Banner',
+                        'click_type': 'button'
+                    });
+                }
+            });
+        }
+        
+        // Проверяем, был ли баннер закрыт недавно
+        const lastClosed = localStorage.getItem('mobile_ad_closed');
+        if (lastClosed) {
+            const hoursElapsed = (Date.now() - parseInt(lastClosed)) / (1000 * 60 * 60);
+            if (hoursElapsed < 24) { // Не показываем баннер, если он был закрыт менее 24 часов назад
+                mobileAdBanner.style.display = 'none';
+            }
+        }
+    }
+    
+    // Адаптивное поведение рекламных блоков
+    window.addEventListener('resize', handleAdResponsiveness);
+    handleAdResponsiveness();
+    
+    // Исправляем возможные проблемы с блоком приложения
+    fixAppContainer();
+}
+
+/**
+ * Исправления для навигационных элементов
+ */
+function fixNavigationItems() {
+    // Исправляем подход к улучшению навигации - вместо клонирования будем модифицировать существующие элементы
+    const navItems = document.querySelectorAll('.nav-item');
+    
+    navItems.forEach(item => {
+        // Улучшаем стили для абсолютной уверенности
+        item.style.display = 'flex';
+        item.style.opacity = '1';
+        item.style.visibility = 'visible';
+        item.style.pointerEvents = 'auto';
+        item.style.cursor = 'pointer';
+        item.style.position = 'relative';
+        item.style.zIndex = '20';
+        
+        // Убеждаемся, что тексты отображаются
+        const textSpan = item.querySelector('span');
+        if (textSpan) {
+            textSpan.style.display = 'inline-block';
+            textSpan.style.opacity = '1';
+            textSpan.style.visibility = 'visible';
+            textSpan.style.pointerEvents = 'none';
+        }
+        
+        // Очищаем существующие события и добавляем новый обработчик
+        const newItem = item.cloneNode(true);
+        newItem.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const target = this.getAttribute('data-target');
+            if (target) {
+                // Делаем все секции неактивными
+                document.querySelectorAll('.content-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                
+                // Активируем целевую секцию
+                const targetSection = document.getElementById(target);
+                if (targetSection) {
+                    targetSection.classList.add('active');
+                }
+                
+                // Обновляем активный класс в навигации
+                document.querySelectorAll('.nav-item').forEach(navItem => {
+                    navItem.classList.remove('active');
+                });
+                this.classList.add('active');
+                
+                console.log(`Navigated to: ${target}`);
+            }
+        });
+        
+        // Безопасно заменяем элемент
+        if (item.parentNode) {
+            item.parentNode.replaceChild(newItem, item);
+        }
+    });
+    
+    // Делаем навигацию прокручиваемой
+    const appNav = document.querySelector('.app-nav');
+    if (appNav) {
+        appNav.style.overflowX = 'auto';
+        appNav.style.webkitOverflowScrolling = 'touch';
+        appNav.style.justifyContent = 'flex-start';
+    }
+}
+
+/**
+ * Исправления для контейнера приложения
+ */
+function fixAppContainer() {
+    const appContainer = document.querySelector('.app-container');
+    if (appContainer) {
+        // Гарантируем правильное отображение и скролл
+        appContainer.style.overflow = 'visible';
+        appContainer.style.position = 'relative';
+        appContainer.style.zIndex = '5';
+        
+        // Принудительно обновляем DOM для перерисовки
+        const display = appContainer.style.display;
+        appContainer.style.display = 'none';
+        setTimeout(() => {
+            appContainer.style.display = display || 'grid';
+        }, 0);
+    }
+}
+
+/**
+ * Адаптивное поведение рекламных блоков в зависимости от размера экрана
+ */
+function handleAdResponsiveness() {
+    const adLeft = document.querySelector('.ad-left');
+    const adRight = document.querySelector('.ad-right');
+    const mobileAdBanner = document.querySelector('.mobile-ad-banner');
+    const appContent = document.querySelector('.app-content');
+    
+    if (window.innerWidth <= 1000) {
+        // Для мобильных устройств
+        if (adLeft) adLeft.style.display = 'none';
+        if (adRight) adRight.style.display = 'none';
+        
+        // Показываем мобильный баннер если он не был закрыт недавно
+        if (mobileAdBanner) {
+            const lastClosed = localStorage.getItem('mobile_ad_closed');
+            if (!lastClosed || (Date.now() - parseInt(lastClosed)) / (1000 * 60 * 60) >= 24) {
+                mobileAdBanner.style.display = 'block';
+                if (appContent) {
+                    appContent.style.paddingBottom = '80px';
+                }
+            }
+        }
+        
+        // Особая обработка для маленьких экранов
+        if (window.innerWidth <= 768) {
+            // Убеждаемся, что навигация имеет горизонтальную прокрутку
+            const appNav = document.querySelector('.app-nav');
+            if (appNav) {
+                appNav.style.overflowX = 'auto';
+                appNav.style.justifyContent = 'flex-start';
+                
+                // Убеждаемся, что все элементы навигации видны
+                const navItems = document.querySelectorAll('.nav-item');
+                navItems.forEach(item => {
+                    item.style.flexShrink = '0';
+                    item.style.minWidth = 'auto';
+                });
+            }
+        }
+    } else {
+        // Для десктопных устройств
+        if (adLeft) adLeft.style.display = 'flex';
+        if (adRight) adRight.style.display = 'flex';
+        
+        // Скрываем мобильный баннер
+        if (mobileAdBanner) {
+            mobileAdBanner.style.display = 'none';
+            if (appContent) {
+                appContent.style.paddingBottom = '0';
+            }
+        }
+    }
+    
+    // Обновляем максимальную высоту контента
+    if (appContent) {
+        const headerHeight = document.querySelector('.app-header')?.offsetHeight || 0;
+        const navHeight = document.querySelector('.app-nav')?.offsetHeight || 0;
+        const langSwitcherHeight = document.querySelector('.language-switcher')?.offsetHeight || 0;
+        
+        const totalHeaderHeight = headerHeight + navHeight + langSwitcherHeight;
+        appContent.style.maxHeight = `calc(100vh - ${totalHeaderHeight + 20}px)`;
+        
+        // Включаем скролл
+        appContent.style.overflowY = 'auto';
+    }
+    
+    // Глобальный фикс для кликабельности
+    document.querySelectorAll('.clickable-element, button, .btn, [role="button"]').forEach(el => {
+        el.style.pointerEvents = 'auto';
+        el.style.cursor = 'pointer';
+        el.style.position = 'relative';
+        el.style.zIndex = '50';
+    });
+} 
